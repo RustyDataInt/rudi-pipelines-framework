@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 #========================================================================
-# 'add.pl' adds one tool suite repository to config/suites.yml and re-installs the MDI
+# 'add.pl' adds one tool suite repository to config/suites.yml and re-installs
 #========================================================================
 
 #========================================================================
@@ -18,7 +18,7 @@ my $leader = "---
 #   - developers should _not_ list their repo forks here
 #   - when a pipeline/app name is in multiple suites, the first match is used
 #----------------------------------------------------------------------
-# !! Re-run 'mdi::install()' or 'mdi install' after updating this list !!
+# !! Re-run 'rudi install' after updating this list !!
 #----------------------------------------------------------------------
 suites:\n";
 #========================================================================
@@ -26,11 +26,11 @@ suites:\n";
 #========================================================================
 # main execution block
 #------------------------------------------------------------------------
-sub mdiAdd { 
+sub rudiAdd { 
     my $newSuite = stripGitUrl( $options{'suite'} );
 
     # if needed, modify suites.yml to include the requested tool suite
-    my $suitesFile = "$ENV{MDI_DIR}/config/suites.yml";
+    my $suitesFile = "$ENV{RUDI_DIR}/config/suites.yml";
     my $yamls = loadYamlFromString( slurpFile($suitesFile) );
     my $suites = $$yamls{parsed}[0]{suites};
     $suites or $suites = [];
@@ -51,7 +51,7 @@ sub mdiAdd {
     } 
 
     # run the complete installation process
-    mdiInstall();
+    rudiInstall();
 }
 sub stripGitUrl {
     my ($suite) = @_;

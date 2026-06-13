@@ -64,7 +64,7 @@ runWorkflowStep 1 stepName stepName/stepScript.sh
 ```
 
 Please see the demo pipeline for a 
-[working example of an MDI-style workflow script](https://github.com/MiDataInt/demo-mdi-tools/blob/main/pipelines/demo/do/Workflow.sh).
+[working example of an MDI-style workflow script](https://github.com/RustyDataInt/demo-mdi-tools/blob/main/pipelines/demo/do/Workflow.sh).
 
 ### Logic for breaking actions into steps
 

@@ -15,7 +15,7 @@ use vars qw($rootDir $jobManagerName %options);
 #========================================================================
 # main execution block
 #------------------------------------------------------------------------
-sub mdiBuild { 
+sub rudiBuild { 
     # pass this call to launcher, it already has support for building and versioning
     my $developerFlag = $ENV{DEVELOPER_MODE} ? "-d" : "";
     $options{'container-type'} or $options{'container-type'} = "pipelines";

@@ -6,8 +6,7 @@ use File::Basename;
 
 # Called automatically by a running pipeline to assemble a data package, 
 # if configured in pipeline.yml. The resulting zip file contains the 
-# small(ish) output files of a Stage 1 Pipeline for loading into a 
-# Stage 1 App.
+# small(ish) output files of a pipeline for loading into an app.
 
 # optionally, also push the data package to an external server
 
@@ -25,7 +24,7 @@ my $pipeline = loadYamlFromString( slurpFile("$pipelineDir/pipeline.yml"), 1 );
 my $config = $$pipeline{parsed}[0]{package};
 
 # check for something to do
-$config or exit; # pipeline or action does not export data to Stage 2
+$config or exit; # pipeline or action does not export data to app
 $config = $$config{$pipelineAction} or exit;
 
 # initialize additional environment variables
@@ -34,7 +33,7 @@ my $taskLogFile     = $ENV{TASK_LOG_FILE};
 my $taskPipelineDir = $ENV{TASK_PIPELINE_DIR};
 my $dataName        = $ENV{DATA_NAME};
 my $dataFilePrefix  = $ENV{DATA_FILE_PREFIX};
-print "\nwriting Stage 2 package file for $pipelineName $pipelineAction\n";
+print "\nwriting data package for $pipelineName $pipelineAction\n";
 
 # load the user option values currently in force
 # other needed environment variables (e.g., those set in code) must be added to pipeline config
@@ -44,7 +43,7 @@ my $jobConfig  = $$options{parsed}[0]; # job-level option values common to all t
 #---------------------------------------------------------------
 # concatenate any job log files for downstream use by apps (e.g., summary counts, etc.)
 #---------------------------------------------------------------
-my $packagePrefix = "$dataFilePrefix.$pipelineName.$pipelineAction.mdi.package";
+my $packagePrefix = "$dataFilePrefix.$pipelineName.$pipelineAction.rudi.package";
 !-d $packagePrefix and mkdir $packagePrefix;
 my $concatenatedLogFileName = "$dataName.$pipelineName.concatenatedLogs";
 my $concatenatedLogFile = "$packagePrefix/$concatenatedLogFileName";
@@ -85,7 +84,7 @@ remove_tree($packagePrefix);
 print "data package created successfully\n\n";
 
 #---------------------------------------------------------------
-# if requested, push data packages to an external server for use in Stage 2 Apps
+# if requested, push data packages to an external server for use apps
 #---------------------------------------------------------------
 if($ENV{PUSH_SERVER} and $ENV{PUSH_SERVER} =~ m/\./ and $ENV{PUSH_DIR} and $ENV{PUSH_USER} and $ENV{PUSH_KEY}){
     my $packageFileName = basename($packageFile);
@@ -167,7 +166,7 @@ sub getOutputFiles {
 
     # add any files from earlier actions, if this a package extension
     if($$config{extends}){
-        $prevPackageFile = "$dataFilePrefix.$pipelineName.$$config{extends}[0].mdi.package.zip";
+        $prevPackageFile = "$dataFilePrefix.$pipelineName.$$config{extends}[0].rudi.package.zip";
         my $yml = qx/unzip -p $prevPackageFile package.yml/;
         my $prevPackage = loadYamlFromString( $yml, 1 );
         my $prevFiles = $$prevPackage{parsed}[0]{files};

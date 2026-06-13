@@ -3,15 +3,15 @@ use strict;
 use warnings;
 
 #========================================================================
-# 'list.pl' lists all pipelines and apps available in an MDI installation
+# 'list.pl' lists all pipelines and apps available in an installation
 #========================================================================
 
 #========================================================================
 # define variables
 #------------------------------------------------------------------------
 use vars qw(%options $separatorLength);
-my $pipelinesLabel = "Stage 1 Pipelines";
-my $appsLabel      = "Stage 2 Apps";
+my $pipelinesLabel = "Pipelines";
+my $appsLabel      = "Apps";
 my $definitive = "definitive";
 my $developer  = "developer-forks";
 #========================================================================
@@ -19,11 +19,11 @@ my $developer  = "developer-forks";
 #========================================================================
 # main execution block
 #------------------------------------------------------------------------
-sub mdiList { 
+sub rudiList { 
     print "\nInstalled Tools\n";
-    print "\n$ENV{MDI_DIR}\n";
+    print "\n$ENV{RUDI_DIR}\n";
     listInstalledTools($pipelinesLabel, "pipelines",  3);
-    listInstalledTools($appsLabel,      "shiny/apps", 4);
+    listInstalledTools($appsLabel,      "apps", 3);
     print "~" x $separatorLength, "\n";
     exit;
 }
@@ -31,7 +31,7 @@ sub listInstalledTools {
     my ($label, $searchPath,, $offset) = @_; 
 
     # parse tools from directory names
-    my @paths = glob("$ENV{MDI_DIR}/suites/*/*/$searchPath/*");
+    my @paths = glob("$ENV{RUDI_DIR}/suites/*/*/$searchPath/*");
     my %tools;
     foreach my $path(@paths){
         -d $path or next;

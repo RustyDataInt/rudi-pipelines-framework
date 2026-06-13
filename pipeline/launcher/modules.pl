@@ -4,7 +4,7 @@ use warnings;
 # subs for handling import of action modules into a pipeline's config
 
 # working variables
-use vars qw($mdiDir $modulesDir $pipelineSuite);
+use vars qw($rudiDir $modulesDir $pipelineSuite);
 
 #------------------------------------------------------------------------------
 # import a called action module

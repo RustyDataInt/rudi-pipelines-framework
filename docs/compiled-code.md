@@ -43,7 +43,7 @@ use Continuous Integration (CI) with
 x86_64 Linux binaries to versioned code releases.
 
 Specifically, the
-[MDI Tool Suite Template](https://midataint.github.io/mdi-suite-template/overview)
+[MDI Tool Suite Template](https://RustyDataInt.github.io/mdi-suite-template/overview)
 you should use to create your new tool suite provides templates for 
 CI workflows. Copy them as needed from the `templates` to the `.github/workflows`
 folder of your tools suite, change just one or two variables, and

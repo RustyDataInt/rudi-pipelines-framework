@@ -5,9 +5,9 @@ use warnings;
 #========================================================================
 # print the parsed values of all job options in YAML format
 # thus:
-#   mdi inspect <data.yml> [args]
+#   inspect <data.yml> [args]
 # is equivalent to iterating:
-#   mdi <pipeline> <data.yml> --dry-run [args]
+#   <pipeline> <data.yml> --dry-run [args]
 # for each pipeline chunk of <data.yml>
 #========================================================================
 
@@ -23,7 +23,7 @@ use vars qw($pipelineName $dataYmlFile @args);
 sub qInspect { 
     my $developerFlag = $ENV{DEVELOPER_MODE} ? "-d" : "";
     my $args = join(" ", @args);
-    system("$ENV{MDI_DIR}/mdi $developerFlag $pipelineName $dataYmlFile --dry-run $args");
+    system("$ENV{RUDI_DIR}/rudi $developerFlag $pipelineName $dataYmlFile --dry-run $args");
 }
 #========================================================================
 

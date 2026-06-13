@@ -86,7 +86,7 @@ sub setContainerEnvVars {
         $$assembled{report} .= "$indent$indent"."level: $ENV{CONTAINER_LEVEL}\n";
 
         # set the collection of additional bind-mount directories based on all options
-        my %bindMounts = ("--bind $ENV{MDI_DIR}:/srv/active/mdi" => 1);
+        my %bindMounts = ("--bind $ENV{RUDI_DIR}:/srv/active/rudi" => 1);
         foreach my $optionName(keys %longOptions){
             my $option = $longOptions{$optionName};
             my $dir = $$option{directory} or next;
@@ -138,7 +138,7 @@ sub setRuntimeEnvVars {
         $ENV{SINGULARITY_LOAD_COMMAND} or throwError(
             "could not find a way to load singularity from PATH or singularity.yml\n".
             "please set option --runtime to 'direct', 'conda', or 'auto', install singularity, or edit:\n".
-            "    mdi/config/singularity.yml >> load-command"
+            "    rudi/config/singularity.yml >> load-command"
         );        
     }
     $ENV{IS_CONTAINER} = ($ENV{RUNTIME} eq 'container');
@@ -362,7 +362,7 @@ sub executeTask {
     } else {
         -d $condaDir or throwError(
             "missing environment for action '$action'\n".
-            "please run 'mdi $ENV{PIPELINE_NAME} conda --create' before launching the pipeline"
+            "please run 'rudi $ENV{PIPELINE_NAME} conda --create' before launching the pipeline"
         );  
         my $executeScript = "$launcherDir/lib/execute.sh";
         -f $executeScript or die "does not exist: $executeScript\n";

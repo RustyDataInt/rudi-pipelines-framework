@@ -65,7 +65,7 @@ actions:
         optionFamilies: null
         description: "(for developers) load a Rust environment or compile Rust executables"
 
-    # commands for developers or MDI-internal use
+    # commands for developers or framework-internal use
     options:
         order: 8
         universal: true

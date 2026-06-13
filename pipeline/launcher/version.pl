@@ -19,13 +19,13 @@ our %workingSuiteVersions;  # the working version of all suites that have alread
 # examine user options and set the primary pipeline suite version accordingly
 sub setPipelineSuiteVersion { 
     my ($version) = @_;
-    if($ENV{MDI_IS_CONTAINER}){ # cannot change a read-only container version
+    if($ENV{RUDI_IS_CONTAINER}){ # cannot change a read-only container version
         $version = $ENV{SUITE_VERSION};
     } else {
         $version or $version = getRequestedSuiteVersion();
         $version = convertSuiteVersion($pipelineSuiteDir, $version);
         setSuiteVersion($pipelineSuiteDir, $version, $pipelineSuite);
-        $ENV{ACTIVE_SUITE_VERSION} = $version; # the suite version that will be loaded into a container's /srv/active/mdi
+        $ENV{ACTIVE_SUITE_VERSION} = $version; # the suite version that will be loaded into a container's /srv/active/rudi
     }
     $ENV{SUITE_VERSION} = $version; # this version info will be overwritten by jobs running in a container
 }
@@ -34,7 +34,7 @@ sub setPipelineSuiteVersion {
 sub setExternalSuiteVersion {
     my ($suiteDir, $suite) = @_;
     $workingSuiteVersions{$suiteDir} and return; # this suite was already handled on prior encounter
-    $ENV{MDI_IS_CONTAINER} and return; # cannot change a read-only container version
+    $ENV{RUDI_IS_CONTAINER} and return; # cannot change a read-only container version
     my $version;
     if(!$pipelineSuiteVersions or !$$pipelineSuiteVersions{$suite}){
         $version = $latest; # apply the default directive when pipeline does not enforce external suite version
@@ -47,7 +47,7 @@ sub setExternalSuiteVersion {
 
 # examine user options for the requested pipeline suite version
 sub getRequestedSuiteVersion {
-    if($ENV{DEVELOPER_MODE} or $ENV{MDI_IS_CONTAINER}){
+    if($ENV{DEVELOPER_MODE} or $ENV{RUDI_IS_CONTAINER}){
         return getSuiteCurrentHead($pipelineSuiteDir); # developer mode and containers leave repos as we find them
     }
     my $version = getCommandLineVersionRequest();      # command line options take precedence
@@ -108,7 +108,7 @@ sub getSuiteCurrentHead {
 }
 
 # use git to check out the proper version of a pipelines suite
-# will throw an error in a read-only Stage 1 container, but should never be called there
+# will throw an error in a read-only pipeline container, but should never be called there
 sub setSuiteVersion {
     my ($suiteDir, $version, $suite) = @_; # version might be a branch name or any valid tag
     my $gitCommand = "cd $suiteDir; git checkout $version"; # normally, we don't need to report git comments to user

@@ -17,20 +17,20 @@ use vars qw(%options $separatorLength);
 #========================================================================
 # main execution block
 #------------------------------------------------------------------------
-sub mdiClean { 
+sub rudiClean { 
 
     # scan for environment claims
     print "Scanning active pipelines for environment claims...\n";
     my $claims = fillAllEnvironmentClaims();
 
     # list the currently installed environments
-    my @environments = map { -d $_ ? $_ : () } glob("$ENV{MDI_DIR}/environments/*");
+    my @environments = map { -d $_ ? $_ : () } glob("$ENV{RUDI_DIR}/environments/*");
 
     # count claims for each current environment
     my %environments;
     foreach my $environment(@environments){
         my $name = basename($environment);
-        my $yml = "$ENV{MDI_DIR}/environments/$name/$name.yml";
+        my $yml = "$ENV{RUDI_DIR}/environments/$name/$name.yml";
         if($$claims{$yml}){
             $environments{claimed}{$environment} = $$claims{$yml};
         } else {
@@ -51,7 +51,7 @@ sub mdiClean {
 
         # get permission and execute environment deletion
         if(getPermission("Permanently delete the listed environments (deletion can take a long time)?")){
-            my $micromamba = "$ENV{MDI_DIR}/bin/micromamba/micromamba";
+            my $micromamba = "$ENV{RUDI_DIR}/bin/micromamba/micromamba";
             foreach my $environment(keys %{$environments{unclaimed}}){
                 system("$micromamba remove -p $environment --all --yes");
                 # rmtree $environment;
@@ -68,7 +68,7 @@ sub mdiClean {
 sub fillAllEnvironmentClaims {
 
     # parse tools from directory names
-    my @paths = glob("$ENV{MDI_DIR}/suites/*/*/pipelines/*");
+    my @paths = glob("$ENV{RUDI_DIR}/suites/*/*/pipelines/*");
     my %pipelines;
     foreach my $path(@paths){
         -d $path or next;
@@ -91,7 +91,7 @@ sub fillPipelineEnvironmentClaims {
     my ($pipeline, $claims) = @_;
     foreach my $version(qw(latest main)){
         print "  $pipeline:$version\n";
-        open my $inH, "-|", "$ENV{MDI_DIR}/mdi $pipeline conda --version $version --list 2>&1" or die "fatal error in clean listPipelineActions()\n";
+        open my $inH, "-|", "$ENV{RUDI_DIR}/rudi $pipeline conda --version $version --list 2>&1" or die "fatal error in clean listPipelineActions()\n";
         while (my $line = <$inH>){
             if($line =~ m/^error:/){
                 print "    !!! ERROR: local changes to one or more suite files would be overridden by checkout\n";

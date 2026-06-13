@@ -6,7 +6,7 @@ use File::Basename;
 # most terminate execution or never return
 
 # working variables
-use vars qw($pipeline $pipelineName $pipelineSuiteDir $launcherDir $mdiDir
+use vars qw($pipeline $pipelineName $pipelineSuiteDir $launcherDir $rudiDir
             @args $config %longOptions $workflowScript %workingSuiteVersions
             $isContainer %pipelineContainerCommands);
 
@@ -24,7 +24,7 @@ sub doRestrictedCommand {
         rollback => \&runRollback,
         rust     => \&runRust,
 
-        # commands for developers or MDI-internal use
+        # commands for developers or framework-internal use
         options         => \&runOptions, 
         optionsTable    => \&runOptionsTable,
         valuesYaml      => \&runValuesYaml,
@@ -60,7 +60,7 @@ sub runTemplate {
         my $desc = getTemplateValue($$config{actions}{template}{description});
         my $pname = $$config{pipeline}{name}[0];
         print "\n$pname template: $desc\n";
-        print  "\nusage: mdi $pname template [-a/--$allOptions] [-c/--$addComments] [-h/--help]\n";
+        print  "\nusage: rudi $pname template [-a/--$allOptions] [-c/--$addComments] [-h/--help]\n";
         print  "\n    -a/--$allOptions    include all possible options [only include options needing values]";
         print  "\n    -c/--$addComments   add instructional comments for new users [comments omitted]";
         print "\n\n";
@@ -78,7 +78,7 @@ sub runTemplate {
 sub runConda {
     
     # see if user provided server.yml
-    my $defaultServerYml = Cwd::abs_path("$mdiDir/config/stage1-pipelines.yml");
+    my $defaultServerYml = Cwd::abs_path("$rudiDir/config/pipelines.yml");
     my @newArgs = ($args[0] and $args[$#args] =~ m/\.yml$/) ? (pop @args) : ();
     
     # special handling of command line option flags
@@ -105,7 +105,7 @@ sub runConda {
         my $usage;
         my $desc = getTemplateValue($$config{actions}{conda}{description});
         $usage .= "\n$pname conda: $desc\n";
-        $usage .=  "\nusage: mdi $pname conda [options]\n";
+        $usage .=  "\nusage: rudi $pname conda [options]\n";
         $usage .=  "\n    -v/--$version   the suite version to query, as a git release tag or branch [latest]";
         $usage .=  "\n    -l/--$list      show the yml config file for each pipeline action";
         $usage .=  "\n    -c/--$create    if needed, create/update the required environments";
@@ -144,7 +144,7 @@ sub runBuild {
         my $usage;
         my $desc = getTemplateValue($$config{actions}{build}{description});
         $usage .= "\n$pname build: $desc\n";
-        $usage .=  "\nusage: mdi $pname build [options]\n";  
+        $usage .=  "\nusage: rudi $pname build [options]\n";  
         $usage .=  "\n    -h/--$help     show this help";    
         $usage .=  "\n    -v/--$version  the suite version to build from, as a git release tag or branch [latest]";
         $usage .=  "\n    -f/--$force    overwrite existing container images";  
@@ -177,7 +177,7 @@ sub runShell {
         my $pname = $$config{pipeline}{name}[0];   
         my $desc = getTemplateValue($$config{actions}{shell}{description});
         $usage .= "\n$pname shell: $desc\n";
-        $usage .=  "\nusage: mdi $pname shell [options]\n";  
+        $usage .=  "\nusage: rudi $pname shell [options]\n";  
         $usage .=  "\n    -h/--help     show this help"; 
         $usage .=  "\n    -a/--action   the pipeline action whose environment will be activated in the shell [do]";
         $usage .=  "\n    -m/--runtime  execution environment: one of direct, container, or auto (container if supported) [auto]";
@@ -229,9 +229,9 @@ sub runShell {
     } else {
         -d $$cnd{dir} or throwError(
             "missing environment for action '$action'\n".
-            "create it using 'mdi $pipelineName conda --create' before opening a direct shell"
+            "create it using 'rudi $pipelineName conda --create' before opening a direct shell"
         );  
-        my $scriptFile = glob("~/.mdi.shellFile");
+        my $scriptFile = glob("~/.rudi.shellFile");
         my $script = join("\n",
             "rm -f $scriptFile", # the script file deletes itself
             $$cnd{shell_hook},
@@ -268,7 +268,7 @@ sub runStatus {
         $subjectAction and $error .= "unkown action: $subjectAction\n";
         throwError(
             $error.
-            "usage: mdi $$config{pipeline}{name}[0] status <action> [data.yml] [OPTIONS]"
+            "usage: rudi $$config{pipeline}{name}[0] status <action> [data.yml] [OPTIONS]"
         )
     }
     
@@ -297,7 +297,7 @@ sub runRollback {
         defined $statusLevel or $error .= "missing status level\n";
         throwError(
             $error.
-            "usage: mdi $$config{pipeline}{name}[0] rollback <action> <last_successful_step> [data.yml] [OPTIONS]"
+            "usage: rudi $$config{pipeline}{name}[0] rollback <action> <last_successful_step> [data.yml] [OPTIONS]"
         )   
     }
     
@@ -383,7 +383,7 @@ sub runRust {
         my $usage;
         my $desc = getTemplateValue($$config{actions}{rust}{description});
         $usage .= "\n$pname rust: $desc\n";
-        $usage .=  "\nusage: mdi $pname rust [options] <rust_version>\n";
+        $usage .=  "\nusage: rudi $pname rust [options] <rust_version>\n";
         $usage .=  "\n    -v/--$version   the suite version to query, as a git release tag or branch [latest]";
         $usage .=  "\n    -g/--$gcc       load a GCC environment for Rust C compilation; must come before --compile or --vscode";
         $usage .=  "\n    -n/--$noConda   do not use a conda environment to compile Rust code; must come before --compile";
@@ -422,7 +422,7 @@ sub runOptions {
         $targetAction and $error .= "unkown action: $targetAction\n";
         throwError(
             $error.
-            "usage: mdi $$config{pipeline}{name}[0] options <action> [required]"
+            "usage: rudi $$config{pipeline}{name}[0] options <action> [required]"
         );
     }
     
@@ -540,7 +540,7 @@ sub runValuesYaml { # takes no arguments
 # pre-pull a pipeline container for asynchronous, queued jobs to use (used by jobManager and Pipeline Runner)
 #------------------------------------------------------------------------------
 sub checkContainer {
-    # command has no options: mdi pipeline checkContainer <data.yml>
+    # command has no options: rudi pipeline checkContainer <data.yml>
     # is silent unless needs to prompt for download
     pullPipelineContainer(undef, undef, $args[1] eq "suite", "pipelines", $args[2]);
     releaseMdiGitLock(0);
@@ -551,7 +551,7 @@ sub checkContainer {
 #------------------------------------------------------------------------------
 sub buildSuite {  
     my ($suite) = @_;
-    my $usage = "usage: mdi buildSuite <GIT_USER/SUITE_NAME> <CONTAINER_TYPE> [--version v0.0.0] [--sandbox]";
+    my $usage = "usage: rudi buildSuite <GIT_USER/SUITE_NAME> <CONTAINER_TYPE> [--version v0.0.0] [--sandbox]";
     my %options;
     my $sandbox = "sandbox"; # @args from jobManager is always (pipelines|apps --version xxxx [--sandbox])
     $args[3] and ($args[3] eq '-s' or $args[3] eq "--$sandbox") and $options{$sandbox} = 1;

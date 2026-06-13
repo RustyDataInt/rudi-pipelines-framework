@@ -10,7 +10,7 @@ use vars qw($jobManagerDir $jobManagerName %commands @options
             %pipelineLevelCommands $parsedYamls);
 our ($command, @args) = @ARGV;
 our ($isContainer, $dataYmlFile, $pipelineOptions, $pipelineName);
-our %mdiContainerCommands = map { $_ => 1 } qw(
+our %containerCommands = map { $_ => 1 } qw(
     inspect
     list
 );
@@ -18,16 +18,16 @@ our %mdiContainerCommands = map { $_ => 1 } qw(
 map { $_ !~ m/main.pl$/ and require $_ } glob("$jobManagerDir/lib/main/*.pl");
 #------------------------------------------------------------------------
 sub jobManagerMain {
-    $isContainer = $ENV{MDI_IS_CONTAINER} ? 1 : 0;
+    $isContainer = $ENV{RUDI_IS_CONTAINER} ? 1 : 0;
 
     # parse the various arguments provided on the job manager command line
     checkCommand();
-    my $isStage2 = $commands{$command}[2];
-    @args or $isStage2 or (reportOptionHelp($command) and exit);
+    my $isAppCommand = $commands{$command}[2];
+    @args or $isAppCommand or (reportOptionHelp($command) and exit);
 
     my @pipelineOptions = setOptions();
     checkRequiredOptions();    
-    $isStage2 and return executeCommand(); # shortcut to stage2 mdi:XXX execution
+    $isAppCommand and return executeCommand(); # shortcut to app execution
     my @dataYmlFiles; # our target file(s) that specific data jobs
     while (defined $pipelineOptions[0] and $pipelineOptions[0] =~ m/\.yml$/) {
         my $dataYmlFile = shift @pipelineOptions;

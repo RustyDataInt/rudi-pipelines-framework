@@ -3,9 +3,8 @@ use strict;
 use warnings;
 use File::Copy;
 
-# this utility script is written for use outside of an MDI pipeline
-# to improve the experience of deleting a folder with many files in many nested directories
-# e.g., environments, R libraries, and more
+# this utility script is written for use outside of a pipeline to improve the 
+# experience of deleting a folder with many files in many nested directories
 # it returns immediately while deleting a renamed directory in a forked background process
 
 my ($directory, $startingLevel) = @ARGV;

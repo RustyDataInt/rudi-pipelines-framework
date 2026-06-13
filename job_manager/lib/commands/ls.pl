@@ -18,8 +18,8 @@ use vars qw($pipelineOptions);
 sub qLs { 
 
     # read required information from job log file
-    my $mdiCommand = "ls";
-    my $logFileYamls = getJobLogFileContents($mdiCommand);
+    my $command = "ls";
+    my $logFileYamls = getJobLogFileContents($command);
     my ($taskId, $taskDir) = (1);
     foreach my $yaml(@$logFileYamls){
         my $task = $$yaml{'task'} or next;
@@ -34,7 +34,7 @@ sub qLs {
     }
 
     # pass the call to system ls
-    $taskDir or throwError("error processing job log file: could not extract the task directory", $mdiCommand);
+    $taskDir or throwError("error processing job log file: could not extract the task directory", $command);
     my $lsDir = join("/", $taskDir, $pipelineOptions);
     exec "echo $lsDir; ls -lahrt $lsDir"; 
 }

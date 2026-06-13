@@ -4,14 +4,14 @@
 #------------------------------------------------------------------------------
 # https://sylabs.io/guides/latest/user-guide/definition_files.html
 #------------------------------------------------------------------------------
-# STATIC_SUITE_DIR=/srv/static/SUITE_NAME is a suite-centric, read-only installation   
-# of SUITE_NAME created at build time. It is where the apps framework and Stage 2 
+# STATIC_SUITE_DIR=/srv/static/SUITE_NAME is a single-suite, read-only installation   
+# of SUITE_NAME created at build time. It is where the apps framework and
 # R libraries are drawn from. The framework is thus fixed at a version known to 
 # support the suite version.
 #------------------------------------------------------------------------------
-# ACTIVE_MDI_DIR=/srv/active/mdi is the user's calling MDI installation that is
+# ACTIVE_RUDI_DIR=/srv/active/rudi is the user's calling installation that is
 # bind-mounted at run time, which is modifiable to add data and resource files, etc.
-# It provides the MDI code for running apps, supported by STATIC_SUITE_DIR.
+# It provides the code for running apps, supported by STATIC_SUITE_DIR.
 #------------------------------------------------------------------------------
 
 # initialize from Shiny + tidyverse
@@ -22,25 +22,25 @@ Stage: build
 # install R packages needed beyond rocker/shiny-verse
 %post
 
-    # variables set by mdi build
+    # variables set by `build`
     export GIT_USER=__GIT_USER__
     export SUITE_NAME=__SUITE_NAME__
     export SUITE_VERSION=__SUITE_VERSION__
     export SUITE_CONTAINER_VERSION=__SUITE_CONTAINER_VERSION__
     export N_CPU=__N_CPU__
-    export MDI_FORCE_GIT=__MDI_FORCE_GIT__
+    export RUDI_FORCE_GIT=__RUDI_FORCE_GIT__
 
     # path variables set by us
     export SRV_DIR=/srv
     export STATIC_DIR=${SRV_DIR}/static 
     export STATIC_SUITE_DIR=${STATIC_DIR}/${SUITE_NAME}
-    export STATIC_MDI_DIR=${STATIC_SUITE_DIR}/mdi
-    export STATIC_MDI=${STATIC_MDI_DIR}/mdi
+    export STATIC_RUDI_DIR=${STATIC_SUITE_DIR}/rudi
+    export STATIC_RUDI=${STATIC_RUDI_DIR}/rudi
 
     # path variables determined by parent container image
     export MDI_SYSTEM_R_LIBRARY=/usr/local/lib/R/site-library
 
-    # install common system utilities used by the MDI and many apps
+    # install common system utilities used by the framework and many apps
     echo "::group::Installing container system dependencies"
     apt-get update && apt-get install -y \
         time \
@@ -74,25 +74,25 @@ Stage: build
         echo "::endgroup::"
     fi
 
-    # execute a suite-centric installation of __SUITE_NAME__:__SUITE_VERSION__
-    echo "::group::Installing the MDI from suite ${SUITE_NAME}"
+    # execute installation of __SUITE_NAME__:__SUITE_VERSION__
+    echo "::group::Installing from suite ${SUITE_NAME}"
     mkdir -p ${STATIC_DIR}
     cd ${STATIC_DIR}
     git clone https://github.com/${GIT_USER}/${SUITE_NAME}.git
     cd ${SUITE_NAME}
-    export SKIP_MDI_APPS_INSTALL=true
+    export SKIP_RUDI_APPS_INSTALL=true
     ./install.sh --yes
-    chmod ugo+x ${STATIC_MDI}
-    cd ${STATIC_MDI_DIR}/suites/definitive/${SUITE_NAME}
+    chmod ugo+x ${STATIC_RUDI}
+    cd ${STATIC_RUDI_DIR}/suites/definitive/${SUITE_NAME}
     # TODO: checkout declared versions of any suite dependencies?
     echo "::endgroup::"
 
     # install the framework and suite app R packages
     # unlike pipeline containers, app packages are installed for any suite dependencies also
     echo "::group::Installing additional required R packages"
-    export MDI_FORCE_SYSTEM_INSTALL=true
-    export SKIP_MDI_APPS_INSTALL=""
-    ${STATIC_MDI} install --install-packages --n-cpu ${N_CPU}
+    export RUDI_FORCE_SYSTEM_INSTALL=true
+    export SKIP_RUDI_APPS_INSTALL=""
+    ${STATIC_RUDI} install --install-packages --n-cpu ${N_CPU}
     echo "::endgroup::"
 
     # clean up private repo git credentials from the image
@@ -113,31 +113,31 @@ Stage: build
     # enable cross-user git operations in the container
     git config --system --add safe.directory '*'
 
-# path overrides include all ways that running pipelines use files from mdi-pipelines-framework
+# path overrides include all ways that running pipelines use files from pipelines framework
 # https://sylabs.io/guides/latest/user-guide/environment_and_metadata.html#environment-and-metadata
 %environment 
     export LC_ALL=C
     export HAS_PIPELINES=__HAS_PIPELINES__
     export HAS_APPS=__HAS_APPS__
-    export MDI_IS_CONTAINER=TRUE
+    export RUDI_IS_CONTAINER=TRUE
     export SRV_DIR=/srv
     export SUITE_NAME=__SUITE_NAME__
 
     # static, read only, code path specifications; environments, library, pipelines framework
     export STATIC_SUITE_DIR=${SRV_DIR}/static/${SUITE_NAME}
-    export STATIC_MDI_DIR=${STATIC_SUITE_DIR}/mdi
-    export FRAMEWORK_DIR=${STATIC_MDI_DIR}/frameworks/definitive/mdi-pipelines-framework
+    export STATIC_RUDI_DIR=${STATIC_SUITE_DIR}/rudi
+    export FRAMEWORK_DIR=${STATIC_RUDI_DIR}/frameworks/definitive/rudi-pipelines-framework
     export JOB_MANAGER_DIR=${FRAMEWORK_DIR}/job_manager
     export LAUNCHER_DIR=${FRAMEWORK_DIR}/pipeline/launcher
 
-    # active, bind-mounted, read-write MDI directory
-    export ACTIVE_MDI_DIR=${SRV_DIR}/active/mdi
-    export MDI_DIR=${STATIC_MDI_DIR}
+    # active, bind-mounted, read-write framework directory
+    export ACTIVE_RUDI_DIR=${SRV_DIR}/active/rudi
+    export RUDI_DIR=${STATIC_RUDI_DIR}
 
     # R path specifications
     export MDI_SYSTEM_R_LIBRARY=/usr/local/lib/R/site-library
-    export STATIC_R_LIBRARY=`ls -ld ${STATIC_MDI_DIR}/library/* | grep "^d" | awk '{print $NF}' | grep -v _BC`
-    export STATIC_BC_LIBRARY=`ls -ld ${STATIC_MDI_DIR}/library/* | grep "^d" | awk '{print $NF}' | grep _BC`
+    export STATIC_R_LIBRARY=`ls -ld ${STATIC_RUDI_DIR}/library/* | grep "^d" | awk '{print $NF}' | grep -v _BC`
+    export STATIC_BC_LIBRARY=`ls -ld ${STATIC_RUDI_DIR}/library/* | grep "^d" | awk '{print $NF}' | grep _BC`
     export R_MAJOR_MINOR_VERSION=`echo ${STATIC_R_LIBRARY} | awk 'BEGIN{FS="-"}{print $NF}'`
     export BIOCONDUCTOR_RELEASE=`echo ${STATIC_BC_LIBRARY} | awk 'BEGIN{FS="-"}{print $NF}'`
 
@@ -147,16 +147,16 @@ Stage: build
 
 # labels for the container image, displayed as 'singularity inspect __SUITE_NAME__-__SUITE_CONTAINER_VERSION__.sif'
 %labels
-    Source Michigan Data Interface
+    Source Rusty Data Interface
     SuiteName __SUITE_NAME__
     SuiteVersion __SUITE_VERSION__
     Pipelines __HAS_PIPELINES__
     Apps __HAS_APPS__
-    org.opencontainers.image.description Michigan Data Interface, __SUITE_NAME__:__SUITE_VERSION__
+    org.opencontainers.image.description Rusty Data Interface, __SUITE_NAME__:__SUITE_VERSION__
 
 # help text displayed by 'singularity run-help __SUITE_NAME__-__SUITE_CONTAINER_VERSION__.sif'
 %help
-    Source:    Michigan Data Interface
+    Source:    Rusty Data Interface
     Suite:     __SUITE_NAME__:__SUITE_VERSION__
     Pipelines: __HAS_PIPELINES__
     Apps:      __HAS_APPS__

@@ -50,14 +50,14 @@ optionFamilies:
                 short: null
                 type: string
                 required: false
-                default: ubuntu # the typical default user on MDI AWS public servers
+                default: ubuntu # the typical default user on AWS public servers
                 description: "valid user name on --push-server, authorized by --push-key"
             push-key:
                 order: 4
                 short: null
                 type: string
                 required: false
-                default: ~/.ssh/mdi-push-key.pem
+                default: ~/.ssh/rudi-push-key.pem
                 description: "path to an ssh key file for which --push-user has a public key on --push-server"
     version:
         order: 120

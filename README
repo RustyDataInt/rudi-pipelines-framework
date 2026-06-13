@@ -1,8 +1,6 @@
+'rudi-pipelines-framework' carries support scripts used by all pipelines
 
-'mdi-pipelines-framework' carries support scripts that are used by all
-MDI pipelines
-
-job_manager  utilities that execute 'mdi submit' and related commands,
+job_manager  utilities that execute 'rudi submit' and related commands,
              i.e.,  job submission to a cluster server job scheduler
 
 pipeline     utilities that enable pipeline executables;

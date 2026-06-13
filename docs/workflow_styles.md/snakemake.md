@@ -51,12 +51,12 @@ action step could chain multiple Snakefiles, etc., if that makes
 more sense to your work than creating one all-encompassing Snakefile.
 
 Please see the demo pipeline for a 
-[working example of an Snakemake-style workflow script](https://github.com/MiDataInt/demo-mdi-tools/blob/main/pipelines/demo/snakemake/Workflow.sh).
+[working example of an Snakemake-style workflow script](https://github.com/RustyDataInt/demo-mdi-tools/blob/main/pipelines/demo/snakemake/Workflow.sh).
 
 ### Config file support for Snakemake-style pipelines
 
 The MDI provides predefined conda and option families within the 
-[mdi-suite-template](https://github.com/MiDataInt/mdi-suite-template)
+[mdi-suite-template](https://github.com/RustyDataInt/mdi-suite-template)
 to make it easy to use Snakemake in your pipeline.
 
 ```yml

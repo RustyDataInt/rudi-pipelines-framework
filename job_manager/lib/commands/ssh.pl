@@ -16,11 +16,11 @@ use vars qw(%options %allJobs %jobStates %targetJobIDs $taskID $pipelineOptions)
 # main execution block
 #------------------------------------------------------------------------
 sub qSsh { 
-    my ($mdiCommand) = @_;
+    my ($command) = @_;
 
     # read required information from job log file
-    $mdiCommand or $mdiCommand = "ssh";
-    my $logFileYamls = getJobLogFileContents($mdiCommand, 1);
+    $command or $command = "ssh";
+    my $logFileYamls = getJobLogFileContents($command, 1);
     my %jmData;
     foreach my $yaml(@$logFileYamls){
         my $jm = $$yaml{'job-manager'} or next;
@@ -28,11 +28,11 @@ sub qSsh {
             $jmData{$key} = $$jm{$key}[0]
         }
     }
-    $jmData{exit_status} and throwError("job has already finished or failed", $mdiCommand); 
+    $jmData{exit_status} and throwError("job has already finished or failed", $command); 
 
     # pass the call to system ssh
     my $host = $jmData{host};
-    $host or throwError("error processing job log file: missing host", $mdiCommand); 
+    $host or throwError("error processing job log file: missing host", $command); 
     my $pseudoTerminal = $ENV{IS_PIPELINE_RUNNER} ? "" : "-t"; # use -t (terminal) to support interactive commands like [h]top
     exec join(" ", "ssh $pseudoTerminal $host", $pipelineOptions);
 }
@@ -42,11 +42,11 @@ sub qSsh {
 # get the contents of the log file for a specific job and task, from option --job
 #------------------------------------------------------------------------
 sub getJobLogFileContents {
-    my ($mdiCommand, $runningOnly) = @_;
+    my ($command, $runningOnly) = @_;
     my $running = $runningOnly ? "running " : "";
 
     # initialize
-    my $error = "command '$mdiCommand' requires a single $running"."job or task ID";
+    my $error = "command '$command' requires a single $running"."job or task ID";
     my $tooManyJobs = "too many matching job targets\n$error";    
     $options{'no-chain'} = 1; 
 
@@ -67,7 +67,7 @@ sub getJobLogFileContents {
         parseJobOption(\%allJobs, 1); 
     }
     my @jobIDs = keys %targetJobIDs; 
-    @jobIDs == 1 or throwError($tooManyJobs, $mdiCommand); 
+    @jobIDs == 1 or throwError($tooManyJobs, $command); 
     my $jobID = $jobIDs[0];
 
     # get and check the job/task log file
@@ -79,9 +79,9 @@ sub getJobLogFileContents {
     } else {
         $logFiles = getLogFiles($qType, $jobName, $jobID, $array);
     }
-    @$logFiles == 1 or throwError($tooManyJobs, $mdiCommand); 
+    @$logFiles == 1 or throwError($tooManyJobs, $command); 
     my $logFile = @$logFiles[0];  
-    -e $logFile or throwError("job log file not found\n$error", $mdiCommand);   
+    -e $logFile or throwError("job log file not found\n$error", $command);   
 
     # extract the job manager status reports from the job/task log file
     my $yamls = loadYamlFromString( slurpFile($logFile) );

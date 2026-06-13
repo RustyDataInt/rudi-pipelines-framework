@@ -3,12 +3,12 @@ use warnings;
 
 # helper functions to locate environment, module, or option files that are
 # external to a pipeline suite, i.e., to be read from a different suite 
-# (which must therefore also be installed into the working MDI path)
+# (which must therefore also be installed into the working installation)
 #   suite_dependencies can be set in _config.yml
 #   external suite version requirements can be specified in pipeline.yml
 
 # working variables
-use vars qw($mdiDir $definitiveSuitesDir $developerSuitesDir);
+use vars qw($rudiDir $definitiveSuitesDir $developerSuitesDir);
 
 # return the path to a requested shared component file
 sub getSharedFile {

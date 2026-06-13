@@ -3,19 +3,19 @@ use warnings;
 $| = 1;
 
 # execute, i.e., launch, a pipeline
-# called by the 'mdi' command line function
+# called by the CLI
 # configures the environment and launches pipeline worker script(s)
 
 # trap SIGINT to remove any locks when user aborts
 $SIG{INT} = sub {
-    system("rm -f $ENV{MDI_DIR}/frameworks/*.lock; ".
-           "rm -f $ENV{MDI_DIR}/suites/*.lock");
+    system("rm -f $ENV{RUDI_DIR}/frameworks/*.lock; ".
+           "rm -f $ENV{RUDI_DIR}/suites/*.lock");
     print "\n";
     exit 1;
 };
 
 # container status
-our $isContainer = $ENV{MDI_IS_CONTAINER} ? 1 : 0;
+our $isContainer = $ENV{RUDI_IS_CONTAINER} ? 1 : 0;
 our %pipelineContainerCommands = map { $_ => 1 } qw(
     template
     shell
@@ -23,9 +23,9 @@ our %pipelineContainerCommands = map { $_ => 1 } qw(
 
 # various framework paths
 our %Forks = (definitive => "definitive", developer => "developer-forks");
-our $mdiDir = $ENV{MDI_DIR}; # the installation from which the pipeline was launched
-our $definitiveSuitesDir = "$mdiDir/suites/$Forks{definitive}"; # for external suite path resolution
-our $developerSuitesDir  = "$mdiDir/suites/$Forks{developer}";
+our $rudiDir = $ENV{RUDI_DIR}; # the installation from which the pipeline was launched
+our $definitiveSuitesDir = "$rudiDir/suites/$Forks{definitive}"; # for external suite path resolution
+our $developerSuitesDir  = "$rudiDir/suites/$Forks{developer}";
 our $launcherDir    = "$ENV{FRAMEWORK_DIR}/pipeline/launcher";
 our $workFlowDir    = "$ENV{FRAMEWORK_DIR}/pipeline/workflow";
 our $workflowScript = "$workFlowDir/workflow.sh";
@@ -60,7 +60,7 @@ our @pipelineDirs = split(/\s/, $ENV{PIPELINE_DIRS});
 sub getPipeline {
     my ($fork) = @_;
     foreach my $pipelineDir(@pipelineDirs){
-        # MDI_DIR/suites/definitive/mdi-pipelines-suite-template/pipelines/_template/
+        # RUDI_DIR/suites/definitive/rudi-pipelines-suite-template/pipelines/_template/
         $pipelineDir =~ m|/$| and chop $pipelineDir;
         my ($pipelineName, $pipelinesLabel, $suiteRepo, $pipelineFork) = reverse( split('/', $pipelineDir) );
         $suiteRepo or next;
@@ -72,10 +72,10 @@ sub getPipeline {
 }
 $ENV{DEVELOPER_MODE} and $pipeline = getPipeline($Forks{developer});
 !$pipeline and $pipeline = getPipeline($Forks{definitive});
-!$pipeline and die "\nmdi error: not a known command, pipeline, or job config: $pipelineName\n\n"; 
+!$pipeline and die "\nerror: not a known command, pipeline, or job config: $pipelineName\n\n"; 
 $pipelineName = $$pipeline{name};
 our $pipelineSuite = $$pipeline{suite};
-our $pipelineSuiteDir = "$mdiDir/suites/$$pipeline{fork}/$$pipeline{suite}"; 
+our $pipelineSuiteDir = "$rudiDir/suites/$$pipeline{fork}/$$pipeline{suite}"; 
 
 # working variables
 our (%conda, %longOptions, %shortOptions, %optionArrays, %optionValues);
@@ -87,7 +87,7 @@ our $sharedDir = "$pipelineSuiteDir/shared";
 our $environmentsDir = "$sharedDir/environments";
 our $optionsDir      = "$sharedDir/options";
 our $modulesDir      = "$sharedDir/modules";
-our $suiteBinDir     = "$mdiDir/bin/$pipelineSuite";
+our $suiteBinDir     = "$rudiDir/bin/$pipelineSuite";
 
 # load launcher scripts
 map { $_ =~ m/launcher\.pl$/ or require $_ } glob("$launcherDir/*.pl");
@@ -99,7 +99,7 @@ if($ENV{IS_DELAYED_EXECUTION}){
     exit;
 }
 
-# lock the suite repository - only one MDI process can use it at a time since branches may change
+# lock the suite repository - only one process can use it at a time since branches may change
 # hereafter, use throwError() or releaseMdiGitLock() to end this launcher process (not exit or die)
 setMdiGitLock();
 

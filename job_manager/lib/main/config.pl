@@ -8,9 +8,9 @@ my $jmName = $ENV{JOB_MANAGER_NAME} ? $ENV{JOB_MANAGER_NAME} : $jobManagerName;
 #------------------------------------------------------------------------
 # commands
 #------------------------------------------------------------------------
-our %commands = (  # [executionSub, commandHelp, mdiStage2]
+our %commands = (  # [executionSub, commandHelp, isAppCommand]
 #------------------------------------------------------------------------------------------------------------
-# commands that manage Stage 1 pipeline execution and depend on data.yml(s)
+# commands that manage pipeline execution and depend on data.yml(s)
     inspect     =>  [\&qInspect,     "print the parsed values of all job options to STDOUT in YAML format"], # inspect, mkdir, submit, and extend must parse data.yml
     mkdir       =>  [\&qMkdir,       "create the output directory(s) needed by a job configuration file"], # mkdir, submit, and extend create files on the system 
     submit      =>  [\&qSubmit,      "queue all required data analysis jobs on the HPC server"],
@@ -29,18 +29,17 @@ our %commands = (  # [executionSub, commandHelp, mdiStage2]
     #--------------------------------------------------------------------------------------------------------
     rollback    =>  [\&qRollback,    "revert the job history to a previously archived status file"], # destructive job-file actions
     purge       =>  [\&qPurge,       "clear all status, script and log files associated with the job set"],
-    #move        =>  [\&qMove,        "move/rename <data.yml> and its associated script and status files"],
 #------------------------------------------------------------------------------------------------------------
-# commands that manage the MDI installation, run the Stage 2 server, etc.
-    initialize  =>  [undef,           "refresh the '$jmName' script to establish its program targets", 1], # 'mdi' handles this call
-    install     =>  [\&mdiInstall,    "re-run the installation process to update suites, etc.", 1], # install and add assume a Stage 2 installation
-    alias       =>  [\&mdiAlias,      "create an alias, i.e., named shortcut, to this MDI program target", 1],
-    add         =>  [\&mdiAdd,        "add one tool suite repository to config/suites.yml and re-install", 1],
-    list        =>  [\&mdiList,       "list all pipelines and apps available in this MDI installation", 1],
-    clean       =>  [\&mdiClean,      "delete all unused conda environments from old pipeline verions", 1],
-    unlock      =>  [\&mdiUnlock,     "remove all framework and suite repository locks, to reset after error", 1],    
-    build       =>  [\&mdiBuild,      "build one container with all of a suite's pipelines and apps", 1],
-    server      =>  [\&mdiServer,     "launch the web server to use interactive Stage 2 apps",  1],
+# commands that manage the installation, run the app server, etc.
+    initialize  =>  [undef,           "refresh the '$jmName' script to establish its program targets", 1], # CLI handles this call
+    install     =>  [\&rudiInstall,   "re-run the installation process to update suites, etc.", 1],
+    alias       =>  [\&rudiAlias,     "create an alias, i.e., named shortcut, to this RuDI program target", 1],
+    add         =>  [\&rudiAdd,       "add one tool suite repository to config/suites.yml and re-install", 1],
+    list        =>  [\&rudiList,      "list all pipelines and apps available in this RuDI installation", 1],
+    clean       =>  [\&rudiClean,     "delete all unused conda environments from old pipeline verions", 1],
+    unlock      =>  [\&rudiUnlock,    "remove all framework and suite repository locks, to reset after error", 1],    
+    build       =>  [\&rudiBuild,     "build one container with all of a suite's pipelines and apps", 1],
+    serve       =>  [\&rudiServe,     "launch the web server to use interactive apps",  1],
 ); 
 #------------------------------------------------------------------------
 # options
@@ -67,30 +66,24 @@ our %optionInfo = (# [shortOption, valueString, optionGroup, groupOrder, optionH
 #------------------------------------------------------------------------------------------------------------  
     'count'=>       ["N", "<int>", "rollback",0, "number of sequential rollbacks to perform [1]"],
 #------------------------------------------------------------------------------------------------------------
-    #'move-to'=>     ["M", "<str>", "move",    1, "the file or directory to which <data.yml> will be moved"],
-#------------------------------------------------------------------------------------------------------------
     '_suppress-echo_'=>["NA", undef,   "NA", "NA", 0, "internalOption"], 
     '_extending_'=>    ["NA", undef,   "NA", "NA", 0, "internalOption"], 
     '_q_remote_'=>     ["NA", undef,   "NA", "NA", 0, "internalOption"], 
     '_server_mode_'=>  ["NA", undef,   "NA", "NA", 0, "internalOption"], 
 #------------------------------------------------------------------------------------------------------------
-    'install-packages'=>   ["p", undef,   "install", 0, "install R packages required by Stage 2 Apps"],
-    'n-cpu'=>              ["u", "<int>", "install", 1, "No. of CPUs for app server installation when --install-packages is set [1]"],
-    'forks'=>              ["F", undef,   "install", 2, "also install your developer forks of MDI GitHub repositories"],
-    'install-with-r'=>     ["R", undef,   "install", 3, "force R-based repository installation for improved developer fork handling"],
+    'forks'=>              ["F", undef,   "install", 2, "also install your developer forks of relevant GitHub repositories"],
     'suite'=>              ["s", "<str>", "install", 4, "a single suite to install or build, in form GIT_USER/SUITE_NAME"],
-    'alias'=>              ["a", "<str>", "alias",   0, "the name of the alias, i.e., the command you will type [mdi]"],
+    'alias'=>              ["a", "<str>", "alias",   0, "the name of the alias, i.e., the command you will type [rudi]"],
     'profile'=>            ["l", "<str>", "alias",   1, "full path to the bash profile file where the alias will be written [~/.bashrc]"],
     'get'=>                ["g", undef,   "alias",   2, "only show the alias command; --profile is ignored and nothing is written"],
     'container-type'=>     ["y", "<str>", "build",   0, "the type of container to build (pipelines or apps) [pipelines]"],
     'version'=>            ["V", "<str>", "build",   1, "the version of the suite to act on, e.g. v0.0.0 [latest]"],
     'sandbox'=>            ["S", undef,   "build",   2, "pass option '--sandbox' to singularity build"],
     'server-command'=>     ["c", "<str>", "server",  0, "command to launch the web server (run, develop, remote, node) [run]"],
-    'data-dir'=>           ["D", "<str>", "server",  1, "path to the desired data directory [MDI_DIR/data]"],
-    'host-dir'=>           ["H", "<str>", "server",  2, "path to a shared/public MDI installation with code and resources [MDI_DIR]"],
+    'data-dir'=>           ["D", "<str>", "server",  1, "path to the desired data directory [RUDI_DIR/data]"],
     'runtime'=>            ["m", "<str>", "server",  3, "execution environment: direct, conda, container, singularity, or auto [auto]"],
     'container-version'=>  ["C", "<str>", "server",  4, "the major.minor version of either R or a tool suite, e.g., 4.1 [latest]"],
-    'port' =>              ["P", "<int>", "server",  5, "the port that the server will listen on [3838]"],
+    'port' =>              ["P", "<int>", "server",  5, "the port that the server will listen on [3839]"],
 );
 our %longOptions = map { ${$optionInfo{$_}}[0] => $_ } keys %optionInfo; # for converting short options to long; long options are used internally
 #------------------------------------------------------------------------
@@ -120,14 +113,14 @@ our %commandOptions =  ( # 0=allowed, 1=required
     #move       =>  {'move-to'=>1,'force'=>0},
 #------------------------------------------------------------------------------------------------------------
     initialize =>  {},
-    install    =>  {'install-packages'=>0,'n-cpu'=>0,'forks'=>0,'install-with-r'=>0},
+    install    =>  {'forks'=>0},
     alias      =>  {'alias'=>0, 'profile'=>0, 'get'=>0},
-    add        =>  {'install-packages'=>0, 'suite'=>1},
+    add        =>  {'suite'=>1},
     list       =>  {},
     clean      =>  {},
     unlock     =>  {},
     build      =>  {'suite'=>1, 'container-type'=>0, 'version'=>0, 'sandbox' => 0},
-    server     =>  {'server-command'=>0,'data-dir'=>0,'host-dir'=>0,'runtime'=>0,'container-version'=>0,'port'=>0}, 
+    server     =>  {'server-command'=>0,'data-dir'=>0,'runtime'=>0,'container-version'=>0,'port'=>0}, 
 ); 
 #------------------------------------------------------------------------
 # suppress the extra demarcating lines used in command execution outputs

@@ -4,14 +4,14 @@
 #------------------------------------------------------------------------------
 # https://sylabs.io/guides/latest/user-guide/definition_files.html
 #------------------------------------------------------------------------------
-# STATIC_SUITE_DIR=/srv/static/SUITE_NAME is a suite-centric, read-only installation   
+# STATIC_SUITE_DIR=/srv/static/SUITE_NAME is a single-suite, read-only installation   
 # of SUITE_NAME created at build time. It is where the pipelines framework and 
 # environments are drawn from. The framework is thus fixed at a version known 
 # to support the suite version.
 #------------------------------------------------------------------------------
-# ACTIVE_MDI_DIR=/srv/active/mdi is the user's calling MDI installation that is
+# ACTIVE_RUDI_DIR=/srv/active/rudi is the user's calling installation that is
 # bind-mounted at run time, which is modifiable to add data and resource files, etc.
-# It provides the MDI code for running pipelines, supported by STATIC_SUITE_DIR.
+# It provides the code for running pipelines, supported by STATIC_SUITE_DIR.
 #------------------------------------------------------------------------------
 # TASK_DIR is a user-defined, active, read-write folder bind-mounted at run time. 
 # In addition to being where pipelines deposit output files, TASK_DIR has the fixed, 
@@ -21,23 +21,23 @@
 # install the software required by pipeline actions as runtime environments
 %post
 
-    # variables set by mdi build
+    # variables set by `build`
     export GIT_USER=__GIT_USER__
     export SUITE_NAME=__SUITE_NAME__
     export SUITE_VERSION=__SUITE_VERSION__
     export SUITE_CONTAINER_VERSION=__SUITE_CONTAINER_VERSION__
     export INSTALLER=__INSTALLER__
     export N_CPU=__N_CPU__
-    export MDI_FORCE_GIT=__MDI_FORCE_GIT__
+    export RUDI_FORCE_GIT=__RUDI_FORCE_GIT__
 
     # path variables set by us
     export SRV_DIR=/srv
     export STATIC_DIR=${SRV_DIR}/static 
     export STATIC_SUITE_DIR=${STATIC_DIR}/${SUITE_NAME}
-    export STATIC_MDI_DIR=${STATIC_SUITE_DIR}/mdi
-    export STATIC_MDI=${STATIC_MDI_DIR}/mdi
+    export STATIC_RUDI_DIR=${STATIC_SUITE_DIR}/rudi
+    export STATIC_RUDI=${STATIC_RUDI_DIR}/rudi
 
-    # install common system utilities used by the MDI and many pipelines
+    # install common system utilities used by the framework and many pipelines
     echo "::group::Installing container system dependencies"
     if [ "$INSTALLER" = "apt-get" ] || \
        [ "$INSTALLER" = "yum" ]; then
@@ -66,22 +66,22 @@
         echo "::endgroup::"
     fi
 
-    # execute a suite-centric installation of __SUITE_NAME__:__SUITE_VERSION__
-    echo "::group::Installing the MDI from suite ${SUITE_NAME}"
+    # execute installation of __SUITE_NAME__:__SUITE_VERSION__
+    echo "::group::Installing from suite ${SUITE_NAME}"
     mkdir -p ${STATIC_DIR}
     cd ${STATIC_DIR}
     git clone https://github.com/${GIT_USER}/${SUITE_NAME}.git
     cd ${SUITE_NAME}
-    export SKIP_MDI_APPS_INSTALL=true
+    export SKIP_RUDI_APPS_INSTALL=true
     ./install.sh --yes
-    chmod ugo+x ${STATIC_MDI}
-    cd ${STATIC_MDI_DIR}/suites/definitive/${SUITE_NAME}
+    chmod ugo+x ${STATIC_RUDI}
+    cd ${STATIC_RUDI_DIR}/suites/definitive/${SUITE_NAME}
     # TODO: checkout declared versions of any suite dependencies?
     echo "::endgroup::"
 
     # install micromamba to use for environment creation to reduce image size and speed builds
     echo "::group::Installing micromamba"
-    export MMB_DIR=${STATIC_MDI_DIR}/bin/micromamba
+    export MMB_DIR=${STATIC_RUDI_DIR}/bin/micromamba
     mkdir -p ${MMB_DIR}
     wget -qO- https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xj -C ${MMB_DIR} --strip-components=1 bin/micromamba
     export MICROMAMBA=${MMB_DIR}/micromamba
@@ -95,7 +95,7 @@
     PIPELINES=$(ls -1 pipelines | grep -v -P "^_")
     for PIPELINE in $PIPELINES; do 
         if [ ! -f "$PIPELINE" ]; then
-            ${STATIC_MDI} ${PIPELINE} conda --create --force --version ${SUITE_VERSION}
+            ${STATIC_RUDI} ${PIPELINE} conda --create --force --version ${SUITE_VERSION}
         fi
     done
     echo "::endgroup::"
@@ -118,34 +118,34 @@
     # enable cross-user git operations in the container
     git config --system --add safe.directory '*'
 
-# path overrides include all ways that running pipelines use files from mdi-pipelines-framework
+# path overrides include all ways that running pipelines use files from pipelines framework
 # https://sylabs.io/guides/latest/user-guide/environment_and_metadata.html#environment-and-metadata
 %environment 
     export LC_ALL=C
     export HAS_PIPELINES=__HAS_PIPELINES__
     export HAS_APPS=__HAS_APPS__
-    export MDI_IS_CONTAINER=TRUE
+    export RUDI_IS_CONTAINER=TRUE
     export SRV_DIR=/srv
     export SUITE_NAME=__SUITE_NAME__
     export SUITE_VERSION=__SUITE_VERSION__
 
     # static, read only, code path specifications; environments, library, pipelines framework
     export STATIC_SUITE_DIR=${SRV_DIR}/static/${SUITE_NAME}
-    export STATIC_MDI_DIR=${STATIC_SUITE_DIR}/mdi
-    export FRAMEWORK_DIR=${STATIC_MDI_DIR}/frameworks/definitive/mdi-pipelines-framework
+    export STATIC_RUDI_DIR=${STATIC_SUITE_DIR}/rudi
+    export FRAMEWORK_DIR=${STATIC_RUDI_DIR}/frameworks/definitive/rudi-pipelines-framework
     export JOB_MANAGER_DIR=${FRAMEWORK_DIR}/job_manager
     export LAUNCHER_DIR=${FRAMEWORK_DIR}/pipeline/launcher
     export WORKFLOW_DIR=${FRAMEWORK_DIR}/pipeline/workflow
     export WORKFLOW_SH=${WORKFLOW_DIR}/workflow.sh
     export SLURP=${FRAMEWORK_DIR}/shell/slurp
 
-    # active, bind-mounted, read-write MDI directory
-    export ACTIVE_MDI_DIR=${SRV_DIR}/active/mdi
-    export MDI_DIR=${ACTIVE_MDI_DIR}
+    # active, bind-mounted, read-write framework directory
+    export ACTIVE_RUDI_DIR=${SRV_DIR}/active/rudi
+    export RUDI_DIR=${ACTIVE_RUDI_DIR}
 
     # environment path specifications
-    export ENVIRONMENTS_DIR=${STATIC_MDI_DIR}/environments
-    export MICROMAMBA=${STATIC_MDI_DIR}/bin/micromamba/micromamba
+    export ENVIRONMENTS_DIR=${STATIC_RUDI_DIR}/environments
+    export MICROMAMBA=${STATIC_RUDI_DIR}/bin/micromamba/micromamba
 
 # scriplet called by install.pl/sh, execute.pl, and server.pl to use the container
 %runscript
@@ -153,16 +153,16 @@
 
 # labels for the container image, displayed as 'singularity inspect __SUITE_NAME__-__SUITE_CONTAINER_VERSION__.sif'
 %labels
-    Source Michigan Data Interface
+    Source Rusty Data Interface
     SuiteName __SUITE_NAME__
     SuiteVersion __SUITE_VERSION__
     Pipelines __HAS_PIPELINES__
     Apps __HAS_APPS__
-    org.opencontainers.image.description Michigan Data Interface, __SUITE_NAME__:__SUITE_VERSION__
+    org.opencontainers.image.description Rusty Data Interface, __SUITE_NAME__:__SUITE_VERSION__
 
 # help text displayed by 'singularity run-help __SUITE_NAME__-__SUITE_CONTAINER_VERSION__.sif'
 %help
-    Source:    Michigan Data Interface
+    Source:    Rusty Data Interface
     Suite:     __SUITE_NAME__:__SUITE_VERSION__
     Pipelines: __HAS_PIPELINES__
     Apps:      __HAS_APPS__

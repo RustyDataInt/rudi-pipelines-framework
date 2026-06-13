@@ -4,8 +4,8 @@ use warnings;
 use File::Copy;
 
 #========================================================================
-# create an alias, i.e., named shortcut, to this MDI program target
-# can have multiple aliases to the same mdi target, but only one alias of a given name
+# create an alias, i.e., named shortcut, to the CLI program target
+# can have multiple aliases to the same target, but only one alias of a given name
 #========================================================================
 
 #========================================================================
@@ -17,17 +17,16 @@ use vars qw(%options);
 #========================================================================
 # main execution block
 #------------------------------------------------------------------------
-sub mdiAlias { 
+sub rudiAlias { 
 
     # parse the options and apply defaults
-    my $alias = $options{'alias'} || "mdi";
+    my $alias = $options{'alias'} || "rudi";
     my $bashrc = "~/.bashrc";
     my $profileFile = glob($options{'profile'} || $bashrc);
-    my $aliasCommand = "alias $alias=\"$ENV{MDI_DIR}/mdi\"";
-    my $outLine = "$aliasCommand # written by MDI alias\n";
+    my $aliasCommand = "alias $alias=\"$ENV{RUDI_DIR}/rudi\"";
+    my $outLine = "$aliasCommand # written by RuDI alias\n";
 
     # since we can't modify the user's shell, show them the command they could execute
-    # a user might thus call `mdi alias -g` to set a temporary alias
     if($options{'get'}){
         print "$aliasCommand\n";
 
@@ -71,7 +70,7 @@ sub mdiAlias {
         $replaced or push @profile, $outLine;  
 
         # print the new file
-        my $buFile = "$profileFile.mdiAliasBackup";
+        my $buFile = "$profileFile.rudiAliasBackup";
         -e $buFile or copy($profileFile, $buFile);
         open my $outH, ">", $profileFile or die "could not write file: $profileFile: $!\n";
         print $outH join("", @profile);

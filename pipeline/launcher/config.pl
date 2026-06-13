@@ -140,7 +140,7 @@ sub reportAssembledConfig {
     my $desc = getTemplateValue($$config{pipeline}{description});
     my @externalSuiteDirs = map { $_ eq $pipelineSuiteDir ? () : $_ } keys %workingSuiteVersions;
     my $thread = $$cmd{thread}[0] || "default";
-    my $version = $ENV{MDI_IS_CONTAINER} ? $ENV{SUITE_VERSION} : $workingSuiteVersions{$pipelineSuiteDir};
+    my $version = $ENV{RUDI_IS_CONTAINER} ? $ENV{SUITE_VERSION} : $workingSuiteVersions{$pipelineSuiteDir};
     my $report = "";
     $report .= "---\n";
     $report .= "pipeline: $pipelineSuite/$pipelineName:$version\n";
@@ -149,7 +149,7 @@ sub reportAssembledConfig {
         $report .= "suiteVersions:\n";
         foreach my $suiteDir(@externalSuiteDirs){
             my @parts = split("/", $suiteDir); 
-            my $version = $ENV{MDI_IS_CONTAINER} ? "" : ":$workingSuiteVersions{$suiteDir}";
+            my $version = $ENV{RUDI_IS_CONTAINER} ? "" : ":$workingSuiteVersions{$suiteDir}";
             $report .= $indent."$parts[$#parts]$version\n";
         }
     }

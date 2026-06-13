@@ -15,13 +15,13 @@ $| = 1;
 # get the job manager directory and executable name
 #------------------------------------------------------------------------
 my ($rootDir, $suppressLog) = @ARGV;
-my $jobManagerName = 'mdi';
+my $jobManagerName = 'rudi';
 $suppressLog or print STDERR "initializing the '$jobManagerName' program target\n";
 my $script = abs_path($0);
 $script =~ m|(.*)/initialize.pl$| or die "fatal error: could not establish the job manager directory\n";
 my $jobManagerDir = $1;
 #------------------------------------------------------------------------
-# get paths to perl, bash and /usr/bin/time
+# get paths to perl and /usr/bin/time
 #------------------------------------------------------------------------
 sub getProgramPath {
     my $path = qx{command -v $_[0] 2>/dev/null | head -n1};
@@ -36,10 +36,9 @@ sub requireProgramPath {
     $path;
 }
 my $perlPath = requireProgramPath('perl');
-my $bashPath = requireProgramPath('bash');
 my $timePath = requireProgramPath('/usr/bin/time');
 #------------------------------------------------------------------------
-# get time version and adjust memory correction accordingly
+# get time version
 #------------------------------------------------------------------------
 my $timeError = "$timePath is not a valid installation of the GNU time utility\n";
 my $timeVersion = qx/$timePath --version 2>&1 | head -n1/; 
@@ -48,10 +47,8 @@ $timeVersion =~ m/GNU/  or die $timeError;
 $timeVersion =~ m/time/ or die $timeError; 
 my @tvf = split(/\s+/, $timeVersion);
 $timeVersion = $tvf[$#tvf];
-$timeVersion or die $timeError;  
-$timeVersion eq "UNKNOWN" and $timeVersion = 1.8;   
-my $memoryCorrection = $timeVersion > 1.7 ? 1 : 4; # for time <= v1.7, account for the known bug that memory values are 4-times too large
-my $memoryMessage = $timeVersion > 1.7 ? "" : "q: !! maxvmem value above is 4-fold too high due to known bug in GNU time utility !!"; 
+$timeVersion or die $timeError;
+$timeVersion eq "UNKNOWN" and $timeVersion = 1.8;
 #------------------------------------------------------------------------
 # discover and store the job scheduler in use on the server
 #------------------------------------------------------------------------
@@ -95,7 +92,6 @@ our $rootDir  = '."'$rootDir'".';
 our $jobManagerDir  = '."'$jobManagerDir'".';
 our $jobManagerName = '."'$jobManagerName'".';
 our $perlPath = '."'$perlPath'".';
-our $bashPath = '."'$bashPath'".';
 our $libDir = '."'$libDir'".';
 our $qType = '."'$qType'".';
 our $schedulerDir = '."'$schedulerDir'".';
@@ -104,8 +100,6 @@ our $submitTarget = '."'$submitTarget'".';
 # provide /usr/bin/time configuration information
 our $timePath = '."'$timePath'".';
 our $timeVersion = '."'$timeVersion'".';
-our $memoryCorrection = '."'$memoryCorrection'".';
-our $memoryMessage = '."'$memoryMessage'".';
 
 # set environment variables passed to jobs
 $ENV{Q_TYPE} = '."'$qType'".';

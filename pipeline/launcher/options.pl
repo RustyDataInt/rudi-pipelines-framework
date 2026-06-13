@@ -6,7 +6,7 @@ use File::Spec;
 # subs for loading available options and their requested values
 
 # working variables
-use vars qw($mdiDir $pipeline $jobConfigYml
+use vars qw($rudiDir $pipeline $jobConfigYml
             $config $isSingleAction $target @args
             @universalOptionFamilies %allOptionFamilies
             %longOptions %shortOptions %optionArrays
@@ -18,7 +18,7 @@ our (%nTasks);
 # preliminary read of command line arguments to pull any pipeline-level version request
 #------------------------------------------------------------------------------
 sub getCommandLineVersionRequest {
-    $target or return; # ensure that we also handle blind calls to a pipeline, i.e., mdi <pipeline> --version xxx
+    $target or return; # ensure that we also handle blind calls to a pipeline, i.e., rudi <pipeline> --version xxx
     my @ARGS = ($target, @args);
     foreach my $i(0..$#ARGS){
         $ARGS[$i] eq '-v' or $ARGS[$i] eq '--version' or next;
@@ -154,7 +154,7 @@ sub assembleCompositeConfig {
     # add further configs at increasing precedence
     my @configYmlFiles = (
         # installation/host level
-        "$mdiDir/config/stage1-pipelines.yml", 
+        "$rudiDir/config/pipelines.yml", 
         
         # user level
         $dataYmlDir ? "$dataYmlDir/../../server.yml" : undef, # user's server environment around multiple pipelines

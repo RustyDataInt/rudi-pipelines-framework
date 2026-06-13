@@ -1,21 +1,21 @@
 # this is the Jekyll configuration file for the GitHub Pages documentation site
 
 # edit the following title and description to match your repository
-title: "MDI Pipelines Framework"
-description: "Support code for the development of Michigan Data Interface data analysis pipelines"
+title: "RuDI Pipelines Framework"
+description: "Support code for the development of Rusty Data Interface (RuDI) data analysis pipelines"
 
 # edit the following link used for the upper right navigation
 aux_links:
   "Go To Repo on GitHub":
-    - "https://github.com/MiDataInt/mdi-pipelines-framework"
+    - "https://github.com/RustyDataInt/rudi-pipelines-framework"
 
 
 # do not edit any line below this line
 
 
 # theme information
-remote_theme: MiDataInt/just-the-docs-mdi
-logo: "/assets/images/mdi-logo-text-200.png"
+remote_theme: RustyDataInt/just-the-docs-rudi
+logo: "/assets/images/rudi-logo-text-200.png"
 
 # footer content
 back_to_top: true

@@ -15,30 +15,20 @@ use vars qw(%options);
 #========================================================================
 # main execution block
 #------------------------------------------------------------------------
-sub mdiInstall { 
+sub rudiInstall { 
 
-    # honor the request for installing developer forks of MDI repos
-    $ENV{INSTALL_MDI_FORKS} = $options{'forks'}          ? "TRUE" : "";
-    $ENV{INSTALL_WITH_R}    = $options{'install-with-r'} ? "TRUE" : "";
+    # honor the request for installing developer forks of repos
+    $ENV{INSTALL_RUDI_FORKS} = $options{'forks'} ? "TRUE" : "";
 
-    # ensure that mdi 'install.sh' script is present
-    # could be missing if initial installation was performed using mdi::install()
+    # ensure that 'install.sh' script is present
     my $installScriptName = "install.sh";
-    my $installScriptPath = "$ENV{MDI_DIR}/$installScriptName";
-    my $installScriptUrl  = "https://raw.githubusercontent.com/MiDataInt/mdi/main/$installScriptName";
-    !-f $installScriptPath and system("cd $ENV{MDI_DIR}; wget $installScriptUrl");
+    my $installScriptPath = "$ENV{RUDI_DIR}/$installScriptName";
+    my $installScriptUrl  = "https://raw.githubusercontent.com/RustyDataInt/rudi/main/$installScriptName";
+    !-f $installScriptPath and system("cd $ENV{RUDI_DIR}; wget $installScriptUrl");
 
-    # pass the call to 'install.sh' script from repo MiDataInt/mdi
-    my $installLevel = $options{'install-packages'} ? 2 : 1;
-    $ENV{N_CPU} = $options{'n-cpu'} ? $options{'n-cpu'} : 1;
-    if($installLevel == 2 and $ENV{N_CPU} == 1){
-        getPermissionGeneral(
-            "You are about to install the Stage 2 Apps server using only 1 CPU.\n\n".
-            "It is strongly recommended to set option --n-cpu to use as many CPUs\n".
-            "as reasonable to speed installation of the many required R packages.\n"
-        )
-    }
-    exec "N_CPU=$ENV{N_CPU} bash $installScriptPath $installLevel";
+    # pass the call to 'install.sh' script from repo
+    $ENV{N_CPU} = 1;
+    exec "N_CPU=$ENV{N_CPU} bash $installScriptPath";
 }
 #========================================================================
 

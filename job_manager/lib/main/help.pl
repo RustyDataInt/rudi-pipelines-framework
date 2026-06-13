@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 # working variables
-use vars qw($jobManagerName %commands %commandOptions %optionInfo $isContainer %mdiContainerCommands);
+use vars qw($jobManagerName %commands %commandOptions %optionInfo $isContainer %containerCommands);
 my $jmName = $ENV{JOB_MANAGER_NAME} ? $ENV{JOB_MANAGER_NAME} : $jobManagerName;
 my $commandTabLength = 12; 
 my $optionTabLength = 20;
@@ -21,7 +21,7 @@ sub throwError {
 }
 sub reportUsage { # program help, always exits 
     my ($message, $command, $die, $noRepeatError) = @_;
-    print "\n>>> Michigan Data Interface (MDI) <<<\n";
+    print "\n>>> Rusty Data Interface (RuDI) <<<\n";
     print $message ? "\n$message\n\n" : "\n";
     my $jmName = "$leftPad$jmName";
     print 
@@ -90,7 +90,7 @@ sub reportCommandChunk {
     my ($header, @commands) = @_;
     my $out = "";
     foreach my $command (@commands){
-        (!$isContainer or $mdiContainerCommands{$command}) and 
+        (!$isContainer or $containerCommands{$command}) and 
             $out .= $leftPad.$leftPad.getCommandLine($command);
     }
     $out or return;

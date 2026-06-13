@@ -25,7 +25,7 @@ descriptions of an MDI tool suite provided in the
 please read that first.
 
 You should also be familiar with the 
-[mdi command line utility](https://github.com/MiDataInt/mdi)
+[mdi command line utility](https://github.com/RustyDataInt/mdi)
 and its
 [documentation](/mdi).
 
@@ -37,7 +37,7 @@ If you are experienced at something not yet in the framework,
 consider adding standardized code for others to use:
 
 - fork the 
-[mdi-pipelines-framework repository](https://github.com/MiDataInt/mdi-pipelines-framework/fork)
+[mdi-pipelines-framework repository](https://github.com/RustyDataInt/mdi-pipelines-framework/fork)
 - add/edit appropriate files
 - make a pull request with a description of your additions
 

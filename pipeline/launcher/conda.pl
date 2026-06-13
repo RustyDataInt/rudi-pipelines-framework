@@ -81,7 +81,7 @@ sub getEnvironmentPaths {
     my ($configYml, $subjectAction, $envName, $envType) = @_;
     
     # check the path where environments are installed
-    my $baseDir = "$ENV{MDI_DIR}/environments";
+    my $baseDir = "$ENV{RUDI_DIR}/environments";
     -d $baseDir or throwError("environments directory does not exist:\n    $baseDir");
     
     # establish the proper name for the environment if not provided by caller
@@ -109,7 +109,7 @@ sub getEnvironmentPaths {
     my $showFile = "$envDir/$envName.yml";  # permanent store to show what was created
     
     # set micromamba paths
-    my $binDir = "$ENV{MDI_DIR}/bin";
+    my $binDir = "$ENV{RUDI_DIR}/bin";
     my $mmbDir = "$binDir/micromamba";
     my $micromamba = "$mmbDir/micromamba";
 

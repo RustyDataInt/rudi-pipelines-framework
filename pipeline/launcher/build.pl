@@ -8,7 +8,7 @@ use File::Basename;
 # https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
 # https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
 
-use vars qw($mdiDir $launcherDir $config %workingSuiteVersions @args
+use vars qw($rudiDir $launcherDir $config %workingSuiteVersions @args
             $pipelineSuite $pipelineName $pipelineDir $pipelineSuiteDir);
 my $silently = "> /dev/null 2>&1";
 
@@ -16,7 +16,7 @@ my $silently = "> /dev/null 2>&1";
 # top level subs for building containers
 #------------------------------------------------------------------------------
 
-# build a pipeline-level container, obligatorily Stage 1
+# build a pipeline-level container
 sub buildSingularity {
     my ($sandbox, $force) = @_;
     my $suiteVersion = $workingSuiteVersions{$pipelineSuiteDir};
@@ -79,9 +79,9 @@ sub buildSuiteContainer {
 
     # clone a fresh copy of the suite repository
     my $lcPipelineSuite = lc($pipelineSuite); # container names must be lower case for registry
-    my $containerDir = "$ENV{MDI_DIR}/containers/$lcPipelineSuite";
+    my $containerDir = "$ENV{RUDI_DIR}/containers/$lcPipelineSuite";
     make_path $containerDir;
-    my $tmpDir = "$ENV{MDI_DIR}/containers/tmp";
+    my $tmpDir = "$ENV{RUDI_DIR}/containers/tmp";
     mkdir $tmpDir;
     $pipelineSuiteDir = "$tmpDir/$pipelineSuite";  
     remove_tree $pipelineSuiteDir;
@@ -124,10 +124,10 @@ sub buildSuiteContainer {
         SUITE_CONTAINER_VERSION  => $suiteMajorMinorVersion,
         CONTAINER_TYPE           => $containerType,
         R_VERSION                => $ENV{R_VERSION} ? $ENV{R_VERSION} : "latest",
-        MDI_FORCE_GIT            => "true", # flags for suite-centric install.sh
-        MDI_INSTALL_PIPELINES    => $addStage1 ? "true" : "",
-        MDI_FORCE_APPS           => $addStage2 ? "true" : "",
-        MDI_SKIP_APPS            => $addStage2 ? ""     : "true",
+        RUDI_FORCE_GIT           => "true", # flags for single-suite install.sh
+        RUDI_INSTALL_PIPELINES   => $addStage1 ? "true" : "",
+        RUDI_FORCE_APPS          => $addStage2 ? "true" : "",
+        RUDI_SKIP_APPS           => $addStage2 ? ""     : "true",
         HAS_PIPELINES            => $addStage1 ? "true" : "false",
         HAS_APPS                 => $addStage2 ? "true" : "false"
     });
@@ -203,7 +203,7 @@ sub buildAndPushContainer {
         open my $outH, ">", $$uris{defFile} or throwError($!);
         print $outH $containerDef;
         close $outH; # use --force (not $force) in build to always allow container labels to be re-written
-        system("cd $ENV{MDI_DIR}; $singularity build --fakeroot $sandbox --force $$uris{imageFile} $$uris{defFile}") and throwError(
+        system("cd $ENV{RUDI_DIR}; $singularity build --fakeroot $sandbox --force $$uris{imageFile} $$uris{defFile}") and throwError(
             "container build failed"
         );        
     } elsif(!$isSuite) { # for buildSingularity, i.e., pipeline
@@ -229,7 +229,7 @@ sub buildAndPushContainer {
 }
 
 #------------------------------------------------------------------------------
-# pull a previously built pipeline container during job execution in mdi-centric mode
+# pull a previously built pipeline container during job execution in multi-suite mode
 #------------------------------------------------------------------------------
 sub pullPipelineContainer {
     my ($uris, $singularity, $isSuite, $containerType, $majorMinorVersion) = @_;
@@ -281,7 +281,7 @@ sub pipelineSupportsContainers {
     $$config{container}{supported}[0]
 }
 
-# get a flag whether a suite-level container supports stage 1 pipelines or stage 2 apps
+# get a flag whether a suite-level container supports pipelines or apps
 # presumes that suiteSupportsContainers has already been checked
 sub getSuiteContainerStage {
     my ($stage, $config) = @_;
@@ -313,7 +313,7 @@ sub getContainerUris { # pipelineSupportsContainers(), i.e.,  $$config{container
             throwError("unexpected call to getContainerUris\n");
         }
     }
-    my $registry = $$cfg{registry} ? $$cfg{registry}[0] : 'ghcr.io'; # default to MDI standard of GitHub Container Registry
+    my $registry = $$cfg{registry} ? $$cfg{registry}[0] : 'ghcr.io'; # default to GitHub Container Registry
     my $owner = $$cfg{owner} ? $$cfg{owner}[0] : '';
     my $configFileName = $isSuite ? "_config.yml" : "pipeline.yml";
     $owner or throwError(
@@ -323,12 +323,12 @@ sub getContainerUris { # pipelineSupportsContainers(), i.e.,  $$config{container
     my ($imageDir, $fileName, $packageName);
     my $lcPipelineSuite = lc($pipelineSuite); # container names must be lower case for registry
     if($isSuite){
-        $imageDir = "$ENV{MDI_DIR}/containers/$lcPipelineSuite";
+        $imageDir = "$ENV{RUDI_DIR}/containers/$lcPipelineSuite";
         $fileName    = $containerType eq 'apps' ? "$lcPipelineSuite-apps" : $lcPipelineSuite;
         $packageName = $fileName;
     } else {
         my $lcPipelineName  = lc($pipelineName);
-        $imageDir = "$ENV{MDI_DIR}/containers/$lcPipelineSuite/$lcPipelineName";
+        $imageDir = "$ENV{RUDI_DIR}/containers/$lcPipelineSuite/$lcPipelineName";
         $fileName = $lcPipelineName;
         $packageName = "$lcPipelineSuite/$lcPipelineName";
     }
@@ -353,7 +353,7 @@ sub getSingularityLoadCommand {
     checkForSingularity($command) and return $command; 
     
     # if not, attempt to use load-command from singularity.yml
-    my $ymlFile = "$mdiDir/config/singularity.yml";
+    my $ymlFile = "$rudiDir/config/singularity.yml";
     if(-e $ymlFile){
         my $yml = loadYamlFile($ymlFile);
         if($$yml{'load-command'} and $$yml{'load-command'}[0]){

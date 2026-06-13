@@ -1,8 +1,0 @@
-
-The 'job-manager' utility is a simplified descendent of 'q'.
-The 'unused' directory has scripts and functions from q
-that are not used by job-manager, but might possibly prove
-useful in the future.
-
-Mostly, these script can be ignored.
-

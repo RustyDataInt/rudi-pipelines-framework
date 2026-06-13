@@ -5,7 +5,7 @@ use warnings;
 
 # working variables
 use vars qw($config %optionValues $helpAction $helpCmd $isContainer %pipelineContainerCommands);
-my $jmName = $ENV{JOB_MANAGER_NAME} ? $ENV{JOB_MANAGER_NAME} : 'mdi';
+my $jmName = $ENV{JOB_MANAGER_NAME} ? $ENV{JOB_MANAGER_NAME} : 'rudi';
 my $actionTabLength = 15;
 my $optionTabLength = 20;
 my $optionTabLengthWide = 25;
@@ -18,7 +18,7 @@ our $errorSeparator = "!" x 100;
 sub showActionsHelp {
     my ($error, $exit) = @_;
     $error and print "\n".$errorSeparator."\n$error\n".$errorSeparator."\n";    
-    !$error and print "\n>>> Michigan Data Interface (MDI): Stage 1 Pipelines <<<\n";
+    !$error and print "\n>>> Rusty Data Interface (RuDI): Pipelines <<<\n";
     my $pName = $leftPad."$jmName $$config{pipeline}{name}[0]";
     my $desc = getTemplateValue($$config{pipeline}{description});
     my $usage =

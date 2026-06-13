@@ -11,7 +11,7 @@ that can be useful in your action scripts.
 We only describe functions designed to be called by your pipeline actions.
 See the following file for more information and for additional, mostly internal, functions:
 
-- <https://github.com/MiDataInt/mdi-pipelines-framework/blob/main/pipeline/workflow/workflow.sh>
+- <https://github.com/RustyDataInt/mdi-pipelines-framework/blob/main/pipeline/workflow/workflow.sh>
 
 ## Support for MDI step-style workflows
 
