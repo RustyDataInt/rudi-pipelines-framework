@@ -1,8 +1,8 @@
 # RuDI Pipelines Framework
 
 The [Rusty Data Interface](https://rustydataint.github.io/) (RuDI) 
-is a framework for developing, installing and running HPC **pipelines** 
-and interactive web **apps** in a standardized design interface
+is a standardized framework for developing and running HPC data 
+analysis **pipelines** and interactive visualization **apps**
 with a Rust-first mindset.
 
 This is the repository for the **RuDI pipelines framework**, where

@@ -79,11 +79,11 @@ our %optionInfo = (# [shortOption, valueString, optionGroup, groupOrder, optionH
     'container-type'=>     ["y", "<str>", "build",   0, "the type of container to build (pipelines or apps) [pipelines]"],
     'version'=>            ["V", "<str>", "build",   1, "the version of the suite to act on, e.g. v0.0.0 [latest]"],
     'sandbox'=>            ["S", undef,   "build",   2, "pass option '--sandbox' to singularity build"],
-    'server-command'=>     ["c", "<str>", "server",  0, "command to launch the web server (run, develop, remote, node) [run]"],
-    'data-dir'=>           ["D", "<str>", "server",  1, "path to the desired data directory [RUDI_DIR/data]"],
-    'runtime'=>            ["m", "<str>", "server",  3, "execution environment: direct, conda, container, singularity, or auto [auto]"],
-    'container-version'=>  ["C", "<str>", "server",  4, "the major.minor version of either R or a tool suite, e.g., 4.1 [latest]"],
-    'port' =>              ["P", "<int>", "server",  5, "the port that the server will listen on [3839]"],
+    'server-command'=>     ["c", "<str>", "serve",   0, "command to launch the web server (run, develop, remote, node) [run]"],
+    'data-dir'=>           ["D", "<str>", "serve",   1, "path to the desired data directory [RUDI_DIR/data]"],
+    # 'runtime'=>            ["m", "<str>", "serve",   3, "execution environment: direct, conda, container, singularity, or auto [auto]"],
+    'container-version'=>  ["C", "<str>", "serve",   4, "the major.minor version of either R or a tool suite, e.g., 4.1 [latest]"],
+    'port' =>              ["P", "<int>", "serve",   5, "the port that the server will listen on [3839]"],
 );
 our %longOptions = map { ${$optionInfo{$_}}[0] => $_ } keys %optionInfo; # for converting short options to long; long options are used internally
 #------------------------------------------------------------------------
@@ -120,7 +120,7 @@ our %commandOptions =  ( # 0=allowed, 1=required
     clean      =>  {},
     unlock     =>  {},
     build      =>  {'suite'=>1, 'container-type'=>0, 'version'=>0, 'sandbox' => 0},
-    server     =>  {'server-command'=>0,'data-dir'=>0,'runtime'=>0,'container-version'=>0,'port'=>0}, 
+    serve      =>  {'server-command'=>0,'data-dir'=>0,'container-version'=>0,'port'=>0}, # ,'runtime'=>0
 ); 
 #------------------------------------------------------------------------
 # suppress the extra demarcating lines used in command execution outputs

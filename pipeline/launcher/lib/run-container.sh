@@ -21,7 +21,7 @@ elif [ "$CONTAINER_ACTION" = "run_apps" ]; then
         exit 1
     fi 
 
-    # options as provided by job_manager/lib/commands/server.pl::launchServerContainer()
+    # options as provided by job_manager/lib/commands/serve.pl::launchServerContainer()
     #     run_apps $serverCmd $dataDir $port
     RUN_COMMAND=$2
     DATA_DIR=$3

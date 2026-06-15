@@ -5,7 +5,7 @@ use File::Path qw(make_path);
 use File::Basename qw(dirname basename);
 
 #========================================================================
-# 'server.pl' launches the web server to use interactive apps
+# 'serve.pl' launches the web server to use interactive apps
 #========================================================================
 
 #========================================================================

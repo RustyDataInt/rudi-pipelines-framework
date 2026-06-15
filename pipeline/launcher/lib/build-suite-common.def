@@ -147,7 +147,7 @@
     export ENVIRONMENTS_DIR=${STATIC_RUDI_DIR}/environments
     export MICROMAMBA=${STATIC_RUDI_DIR}/bin/micromamba/micromamba
 
-# scriplet called by install.pl/sh, execute.pl, and server.pl to use the container
+# scriplet called by install.pl/sh, execute.pl, and serve.pl to use the container
 %runscript
     bash ${LAUNCHER_DIR}/lib/run-container.sh "$@"
 

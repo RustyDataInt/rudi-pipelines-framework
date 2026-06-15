@@ -141,7 +141,7 @@ Stage: build
     export R_MAJOR_MINOR_VERSION=`echo ${STATIC_R_LIBRARY} | awk 'BEGIN{FS="-"}{print $NF}'`
     export BIOCONDUCTOR_RELEASE=`echo ${STATIC_BC_LIBRARY} | awk 'BEGIN{FS="-"}{print $NF}'`
 
-# scriplet called by install.pl/sh, execute.pl, and server.pl to use the container
+# scriplet called by install.pl/sh, execute.pl, and serve.pl to use the container
 %runscript
     bash ${LAUNCHER_DIR}/lib/run-container.sh "$@"
 

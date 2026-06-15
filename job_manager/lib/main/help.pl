@@ -9,7 +9,7 @@ my $optionTabLength = 20;
 our $separatorLength = 100;
 our $leftPad = (" ") x 2;
 our $errorHighlight = "!" x 80;
-our @optionGroups = qw(main submit status job rollback install alias build server);  # ensure that similar options group together
+our @optionGroups = qw(main submit status job rollback install alias build serve);  # ensure that similar options group together
 my %useOptionGroupDelimiter = (submit=>1, extend=>1, resubmit=>1);  # break long options lists into separate groups
 
 #========================================================================
