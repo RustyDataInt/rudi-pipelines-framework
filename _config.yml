@@ -2,7 +2,7 @@
 
 # edit the following title and description to match your repository
 title: "RuDI Pipelines Framework"
-description: "Support code for the development of Rusty Data Interface (RuDI) data analysis pipelines"
+description: "Support code for development of Rusty Data Interface (RuDI) data analysis pipelines"
 
 # edit the following link used for the upper right navigation
 aux_links:
