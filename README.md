@@ -6,23 +6,24 @@ analysis **pipelines** and interactive visualization **apps**
 with a Rust-first mindset.
 
 This is the repository for the **RuDI pipelines framework**, where
-a pipeline, roughly synonymous with a workflow, refers
-to a series of data analysis actions coordinated by scripts.
+a pipeline, roughly synonymous with a workflow, refers to a 
+series of data analysis actions coordinated by wrapper scripts.
 
-The pipelines framework does not encode the analysis pipelines 
-themselves, which are found in tool suites created from our 
+The pipelines framework does not encode analysis pipelines themselves, 
+which are found in other tool suite repositories created from our 
 suite repository template:
 
 - tool suite template: <https://github.com/RustyDataInt/rudi-suite-template>
 
-Instead, the pipelines framework encodes scripts that:
+Instead, the pipelines framework:
 
-- allow YAML configuration files to be used to define a pipeline
-- wrap pipelines into a common command-line interface (CLI)
-- coordinate pipeline job submission to HPC schedulers
+- reads YAML configuration files that are used to define a pipeline
+- wraps pipelines into a common command-line interface (CLI)
+- coordinates pipeline job submission to HPC schedulers
+- provides a consistent format for building pipeline options and actions
 
-## Installation and use
+## Usage
 
 This repository is not used directly. Instead, it is cloned
-and managed by the 
+and called by the 
 [installer and CLI found here](https://github.com/RustyDataInt/rudi).
