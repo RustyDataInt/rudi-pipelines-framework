@@ -4,9 +4,8 @@
 
 # exclude Rust build artifacts
 **/crates/target
-**/crates/Cargo.lock
 **/crates/*/target
-**/crates/*/Cargo.lock
+**/*.rs.bk
 
 # exclude development artifacts and temporary files
 unused/
