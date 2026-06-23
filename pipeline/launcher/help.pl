@@ -52,7 +52,7 @@ sub showActionsHelp {
     }
     print  "\n"; 
     $error and print $errorSeparator."\n$error\n".$errorSeparator."\n\n";   
-    $exit and releaseMdiGitLock(1);
+    $exit and releaseRudiGitLock(1);
 }
 
 #------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ sub showOptionsHelp {
         $useValues or print "\n";
     }
     $parsedError and print "$parsedError\n";
-    $suppressExit or releaseMdiGitLock(1);
+    $suppressExit or releaseRudiGitLock(1);
 }
 sub getFamilyOrder {
     my ($family) = @_;
@@ -139,7 +139,7 @@ sub getOptionOrder {
 #------------------------------------------------------------------------------
 sub throwError {
     print "\n$errorSeparator\n$_[0]\n$errorSeparator\n\n";
-    releaseMdiGitLock(1);
+    releaseRudiGitLock(1);
 }
 sub throwConfigError { # thrown when a configuration file is malformed
     my ($message, @keys) = @_;

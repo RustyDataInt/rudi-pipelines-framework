@@ -100,8 +100,8 @@ if($ENV{IS_DELAYED_EXECUTION}){
 }
 
 # lock the suite repository - only one process can use it at a time since branches may change
-# hereafter, use throwError() or releaseMdiGitLock() to end this launcher process (not exit or die)
-setMdiGitLock();
+# hereafter, use throwError() or releaseRudiGitLock() to end this launcher process (not exit or die)
+setRudiGitLock();
 
 # do a first read of requested options to set the pipeline's suite version, as needed
 # external suite dependencies are set during the subsequent call to loadPipelineConfig
@@ -162,6 +162,6 @@ $showProgress and print STDERR "\n";
 
 # release our lock on the suite repository
 # any functions that terminate execution before this point must also release the lock
-releaseMdiGitLock(0);
+releaseRudiGitLock(0);
 
 1;

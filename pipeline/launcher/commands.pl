@@ -64,12 +64,12 @@ sub runTemplate {
         print  "\n    -a/--$allOptions    include all possible options [only include options needing values]";
         print  "\n    -c/--$addComments   add instructional comments for new users [comments omitted]";
         print "\n\n";
-        releaseMdiGitLock(0);
+        releaseRudiGitLock(0);
     }
     
     # print the template to STDOUT
     writeDataFileTemplate($options{$allOptions}, $options{$addComments});
-    releaseMdiGitLock(0);
+    releaseRudiGitLock(0);
 }
 
 #------------------------------------------------------------------------------
@@ -112,13 +112,13 @@ sub runConda {
         $usage .=  "\n    -f/--$force     do not prompt for permission to create/update environments";    
         $error and throwError($error.$usage);
         print "$usage\n\n";
-        releaseMdiGitLock(0);
+        releaseRudiGitLock(0);
     }
     
     # list or create runtime environments in action order
     @args = @newArgs;
     showCreateEnvironments($options{$create}, $options{$force});
-    releaseMdiGitLock(0);
+    releaseRudiGitLock(0);
 }
 
 #------------------------------------------------------------------------------
@@ -150,12 +150,12 @@ sub runBuild {
         $usage .=  "\n    -f/--$force    overwrite existing container images";  
         $usage .=  "\n    -s/--$sandbox  run singularity with the --sandbox option set"; 
         print "$usage\n\n";
-        releaseMdiGitLock(0);
+        releaseRudiGitLock(0);
     }
     
     # call Singularity build action
     buildSingularity($options{$sandbox} ? "--sandbox" : "", $options{$force} ? "--force" : "");
-    releaseMdiGitLock(0);
+    releaseRudiGitLock(0);
 }
 
 #------------------------------------------------------------------------------
@@ -182,7 +182,7 @@ sub runShell {
         $usage .=  "\n    -a/--action   the pipeline action whose environment will be activated in the shell [do]";
         $usage .=  "\n    -m/--runtime  execution environment: one of direct, container, or auto (container if supported) [auto]";
         print "$usage\n\n";
-        releaseMdiGitLock(0);
+        releaseRudiGitLock(0);
     }
     $options{$help} and showShellHelp();
 
@@ -250,7 +250,7 @@ sub runShell {
     }
 
     # launch the shell, either interactively or to run one command
-    releaseMdiGitLock();
+    releaseRudiGitLock();
     exec $shellCommand;
 }
 
@@ -278,7 +278,7 @@ sub runStatus {
     
     # do the work
     print "\n";
-    releaseMdiGitLock();
+    releaseRudiGitLock();
     exec "bash -c 'source $workflowScript; showWorkflowStatus'";  
 }
 
@@ -312,13 +312,13 @@ sub doRollback {
     my ($subjectAction, $statusLevel, $exit) = @_;
     
     # request permission
-    getPermission("Pipeline status will be permanently reset.") or releaseMdiGitLock(1);
+    getPermission("Pipeline status will be permanently reset.") or releaseRudiGitLock(1);
     $ENV{PIPELINE_ACTION} = $subjectAction;
     $ENV{LAST_SUCCESSFUL_STEP} = $statusLevel;
     
     # do the work
     system("bash -c 'source $workflowScript; resetWorkflowStatus'");
-    $exit and releaseMdiGitLock(0);
+    $exit and releaseRudiGitLock(0);
 }
 
 #------------------------------------------------------------------------------
@@ -393,7 +393,7 @@ sub runRust {
         $usage  .= "\n    -d/--$vscode    generate rust-analyzer startup script for VSCode integration";
         $isError and throwError("$error$usage");
         print "$usage\n\n";
-        releaseMdiGitLock(0);
+        releaseRudiGitLock(0);
     }
     
     # # compile any executable programs
@@ -406,7 +406,7 @@ sub runRust {
     } else {
         generateRustAnalyzerScript($rustVersion, $gccLoadCommand);
     }
-    releaseMdiGitLock(0);
+    releaseRudiGitLock(0);
 }
 
 #------------------------------------------------------------------------------
@@ -464,7 +464,7 @@ sub runOptions {
         $isConflicts++;
     }   
     !$isConflicts and print "\nNo option name conflicts were found.\n\n"; 
-    releaseMdiGitLock(0);
+    releaseRudiGitLock(0);
 }
 
 #------------------------------------------------------------------------------
@@ -495,7 +495,7 @@ sub runOptionsTable { # takes no arguments
                              $default, $$option{description}[0]), "\n";
         }    
     }
-    releaseMdiGitLock(0);
+    releaseRudiGitLock(0);
 }
 
 #------------------------------------------------------------------------------
@@ -533,7 +533,7 @@ sub runValuesYaml { # takes no arguments
 
     # print the final yaml results
     print $yml.$actionsYml;
-    releaseMdiGitLock(0);
+    releaseRudiGitLock(0);
 }
 
 #------------------------------------------------------------------------------
@@ -543,7 +543,7 @@ sub checkContainer {
     # command has no options: rudi pipeline checkContainer <data.yml>
     # is silent unless needs to prompt for download
     pullPipelineContainer(undef, undef, $args[1] eq "suite", "pipelines", $args[2]);
-    releaseMdiGitLock(0);
+    releaseRudiGitLock(0);
 }
 
 #------------------------------------------------------------------------------
@@ -551,7 +551,7 @@ sub checkContainer {
 #------------------------------------------------------------------------------
 sub buildSuite {  
     my ($suite) = @_;
-    my $usage = "usage: rudi buildSuite <GIT_USER/SUITE_NAME> <CONTAINER_TYPE> [--version v0.0.0] [--sandbox]";
+    my $usage = "usage: rudi buildSuite <GIT_OWNER/SUITE_NAME> <CONTAINER_TYPE> [--version v0.0.0] [--sandbox]";
     my %options;
     my $sandbox = "sandbox"; # @args from jobManager is always (pipelines|apps --version xxxx [--sandbox])
     $args[3] and ($args[3] eq '-s' or $args[3] eq "--$sandbox") and $options{$sandbox} = 1;

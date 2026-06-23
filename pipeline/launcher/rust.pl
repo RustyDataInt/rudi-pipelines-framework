@@ -42,7 +42,7 @@ $$cnd{micromamba} env create --prefix $$cnd{dir} --file $$cnd{initFile} --yes
         }
         move($$cnd{initFile}, $$cnd{showFile});
     }
-    releaseMdiGitLock();
+    releaseRudiGitLock();
 }
 
 #------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ sub execRustEnvironment {
     open my $outH, ">", $scriptFile or throwError("could not write to $scriptFile: $!");
     print $outH $script; 
     close $outH;
-    releaseMdiGitLock();
+    releaseRudiGitLock();
     exec $shellCommand;
 }
 
@@ -105,7 +105,7 @@ sub generateRustAnalyzerScript {
     chmod 0755, $scriptFile or throwError("could not set execute permissions on $scriptFile: $!");
     print "generated rust-analyzer startup script for VSCode at:\n    $scriptFile\n\n";
     system("cat $scriptFile");
-    releaseMdiGitLock();
+    releaseRudiGitLock();
 }
 
 #------------------------------------------------------------------------------
@@ -167,7 +167,7 @@ sub compileRustExecutables {
         }
     }
     close $inH;
-    releaseMdiGitLock();
+    releaseRudiGitLock();
 }
 
 #------------------------------------------------------------------------------

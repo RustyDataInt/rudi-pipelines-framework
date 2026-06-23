@@ -22,7 +22,7 @@
 %post
 
     # variables set by `build`
-    export GIT_USER=__GIT_USER__
+    export GIT_OWNER=__GIT_OWNER__
     export SUITE_NAME=__SUITE_NAME__
     export SUITE_VERSION=__SUITE_VERSION__
     export PIPELINE_NAME=__PIPELINE_NAME__
@@ -76,7 +76,7 @@
 
     # add the parent tool suite of this pipeline and its dependencies
     echo "::group::Adding ${SUITE_NAME} suite"
-    ${STATIC_RUDI} add --suite ${GIT_USER}/${SUITE_NAME}
+    ${STATIC_RUDI} add --suite ${GIT_OWNER}/${SUITE_NAME}
     cd ${STATIC_RUDI_DIR}/suites/definitive/${SUITE_NAME}
     # TODO: checkout declared versions of any suite dependencies?
     cd ${SRV_DIR}

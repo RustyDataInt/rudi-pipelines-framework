@@ -31,7 +31,7 @@ sub getUserInput {
     chomp $response;
     unless(!$required or $response){
         print "aborting with no input\n";
-        releaseMdiGitLock(1);
+        releaseRudiGitLock(1);
     }
     return $response;
 }

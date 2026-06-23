@@ -72,7 +72,7 @@ our %optionInfo = (# [shortOption, valueString, optionGroup, groupOrder, optionH
     '_server_mode_'=>  ["NA", undef,   "NA", "NA", 0, "internalOption"], 
 #------------------------------------------------------------------------------------------------------------
     'forks'=>              ["F", undef,   "install", 2, "also install your developer forks of relevant GitHub repositories"],
-    'suite'=>              ["s", "<str>", "install", 4, "a single suite to install or build, in form GIT_USER/SUITE_NAME"],
+    'suite'=>              ["s", "<str>", "install", 4, "a single suite to install or build, in form GIT_OWNER/SUITE_NAME"],
     'alias'=>              ["a", "<str>", "alias",   0, "the name of the alias, i.e., the command you will type [rudi]"],
     'profile'=>            ["l", "<str>", "alias",   1, "full path to the bash profile file where the alias will be written [~/.bashrc]"],
     'get'=>                ["g", undef,   "alias",   2, "only show the alias command; --profile is ignored and nothing is written"],

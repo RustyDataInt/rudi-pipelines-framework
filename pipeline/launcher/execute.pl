@@ -371,7 +371,7 @@ sub executeTask {
 
     # single actions or tasks replace this process and never return
     if($isSingleAction and $isSingleTask){
-        releaseMdiGitLock();
+        releaseRudiGitLock();
         exec $execCommand;
     } 
     

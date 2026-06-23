@@ -38,7 +38,7 @@ sub buildSingularity {
     $ENV{FORCE_CONTAINER_BUILD} or getPermission(
         "\n'build' will create and post a Singularity container image for pipeline:\n".
         "    $pipelineSuite/$pipelineName:$suiteVersion"
-    ) or releaseMdiGitLock(1); 
+    ) or releaseRudiGitLock(1); 
   
     # parse the pipeline version to build
     # container labels only use major and minor versions; patches must not change software dependencies
@@ -49,7 +49,7 @@ sub buildSingularity {
     my $containerLevel = "pipeline";
     my $containerType = "pipelines";
     my $containerDef = assembleContainerDef($pipelineDir, $containerLevel, $containerType, {
-        # TODO: NEEDS GIT_USER!
+        # TODO: NEEDS GIT_OWNER!
         SUITE_VERSION    => $suiteVersion,
         PIPELINE_NAME    => $pipelineName,
         PIPELINE_VERSION => $pipelineVersion
@@ -64,7 +64,7 @@ sub buildSuiteContainer {
     my ($suite, $containerType, $sandbox) = @_;
     my ($gitUser, $repoName) = split('/', $suite);
     $repoName or throwError(
-        "bad value for option '--suite', expected 'GIT_USER/SUITE_NAME'"
+        "bad value for option '--suite', expected 'GIT_OWNER/SUITE_NAME'"
     );
     $pipelineSuite = $repoName;
 
@@ -119,7 +119,7 @@ sub buildSuiteContainer {
     my $addStage1 = $containerType eq "pipelines" ? 1 : 0;
     my $addStage2 = $containerType eq "apps"      ? 1 : 0;
     my $containerDef = assembleContainerDef($pipelineSuiteDir, $containerLevel, $containerType, {
-        GIT_USER                 => $gitUser,
+        GIT_OWNER                 => $gitUser,
         SUITE_VERSION            => $suiteVersion,
         SUITE_CONTAINER_VERSION  => $suiteMajorMinorVersion,
         CONTAINER_TYPE           => $containerType,
@@ -244,7 +244,7 @@ sub pullPipelineContainer {
     #     "    $$uris{imageFile}\n".
     #     "from:\n".
     #     "    $$uris{container}"
-    # ) or releaseMdiGitLock(1);  
+    # ) or releaseRudiGitLock(1);  
 
     # learn how to use singularity
     if(!$singularity){

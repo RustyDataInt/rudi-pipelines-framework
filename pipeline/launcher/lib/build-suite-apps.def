@@ -23,7 +23,7 @@ Stage: build
 %post
 
     # variables set by `build`
-    export GIT_USER=__GIT_USER__
+    export GIT_OWNER=__GIT_OWNER__
     export SUITE_NAME=__SUITE_NAME__
     export SUITE_VERSION=__SUITE_VERSION__
     export SUITE_CONTAINER_VERSION=__SUITE_CONTAINER_VERSION__
@@ -78,7 +78,7 @@ Stage: build
     echo "::group::Installing from suite ${SUITE_NAME}"
     mkdir -p ${STATIC_DIR}
     cd ${STATIC_DIR}
-    git clone https://github.com/${GIT_USER}/${SUITE_NAME}.git
+    git clone https://github.com/${GIT_OWNER}/${SUITE_NAME}.git
     cd ${SUITE_NAME}
     export SKIP_RUDI_APPS_INSTALL=true
     ./install.sh --yes

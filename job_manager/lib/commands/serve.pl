@@ -142,21 +142,21 @@ sub launchServerSuiteContainer {
 
 # common container run action
 sub launchServerContainer {
-    my ($imageFile) = @_;
-    -f $imageFile or throwError("image file not found\n    $imageFile", 'server');
-    my $srvActiveDir = "/srv/active/rudi";
-    my $srvActiveDataDir = "$srvActiveMdiDir/data";
-    my $dataDir = $options{'data-dir'} || $srvActiveDataDir; 
-    uc($dataDir) eq "NULL" and $dataDir = $srvActiveDataDir;
-    $dataDir =~ m|^$ENV{RUDI_DIR}| and $dataDir = $srvActiveDataDir; # prevent nested binds, if within RUDI_DIR just use the standard active data directory
-    my $bind = "--bind $ENV{RUDI_DIR}:$srvActiveMdiDir";
-    my @bound = ($ENV{RUDI_DIR});
-    my @toBind = $dataDir eq $srvActiveDataDir ? () : ($dataDir);
-    addBindMounts(\$bind, \@bound, \@toBind); # add user bind paths from config/apps.yml
-    my $singularityCommand = $ENV{SINGULARITY_COMMAND} || "run"; # for debugging, typically set to "shell"
-    my $port = $options{'port'} || 3838;
-    $ENV{CALLER_RUDI_DIR} = $ENV{RUDI_DIR}; # remember the RUDI_DIR for display in apps that replaces /srv/active/rudi with the bound path
-    exec "$singularityLoad; singularity $singularityCommand $bind $imageFile run_apps $serverCmd $dataDir $port";
+    # my ($imageFile) = @_;
+    # -f $imageFile or throwError("image file not found\n    $imageFile", 'server');
+    # my $srvActiveDir = "/srv/active/rudi";
+    # my $srvActiveDataDir = "$srvActiveMdiDir/data";
+    # my $dataDir = $options{'data-dir'} || $srvActiveDataDir; 
+    # uc($dataDir) eq "NULL" and $dataDir = $srvActiveDataDir;
+    # $dataDir =~ m|^$ENV{RUDI_DIR}| and $dataDir = $srvActiveDataDir; # prevent nested binds, if within RUDI_DIR just use the standard active data directory
+    # my $bind = "--bind $ENV{RUDI_DIR}:$srvActiveMdiDir";
+    # my @bound = ($ENV{RUDI_DIR});
+    # my @toBind = $dataDir eq $srvActiveDataDir ? () : ($dataDir);
+    # addBindMounts(\$bind, \@bound, \@toBind); # add user bind paths from config/apps.yml
+    # my $singularityCommand = $ENV{SINGULARITY_COMMAND} || "run"; # for debugging, typically set to "shell"
+    # my $port = $options{'port'} || 3838;
+    # $ENV{CALLER_RUDI_DIR} = $ENV{RUDI_DIR}; # remember the RUDI_DIR for display in apps that replaces /srv/active/rudi with the bound path
+    # exec "$singularityLoad; singularity $singularityCommand $bind $imageFile run_apps $serverCmd $dataDir $port";
 }
 #========================================================================
 

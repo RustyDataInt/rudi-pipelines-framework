@@ -7,17 +7,17 @@ use warnings;
 use vars qw($rudiDir $pipelineSuite $pipelineSuiteDir $errorSeparator);
 
 # do not place the lock file in $pipelineSuiteDir since branch changes could wipe it out
-# all calls to xxxMdiGitLock are guaranteed to have a valid $pipelineSuite
-sub getMdiLockFile {
+# all calls to xxxRudiGitLock are guaranteed to have a valid $pipelineSuite
+sub getRudiLockFile {
     "$rudiDir/suites/$pipelineSuite.lock";    
 }
 sub getSuiteGitLockFile {
     "$pipelineSuiteDir/.git/index.lock";
 }
 
-sub setMdiGitLock { 
+sub setRudiGitLock { 
     $ENV{RUDI_IS_CONTAINER} and return; # not applicable, single-user read-only file system
-    my $lockFile = getMdiLockFile();      # placed by us
+    my $lockFile = getRudiLockFile();      # placed by us
     my $gitLockFile = getSuiteGitLockFile(); # placed by git
     my $cumLockWaitUSec = 0;
     my $maxLockWaitUSec = ($ENV{GIT_LOCK_WAIT_SECONDS} || 30) * 1000 * 1000; # i.e., 30 seconds default, submit sets this higher for array jobs
@@ -46,7 +46,7 @@ sub setMdiGitLock {
         die "\ncould not create lock file:\n    $lockFile\n\n";
 }
 
-sub releaseMdiGitLock { # always called at the end of every launcher run
+sub releaseRudiGitLock { # always called at the end of every launcher run
     my ($exitStatus) = @_; # omit exit status if, and only if, followed by call to exec
     $ENV{IS_DELAYED_EXECUTION} and return; # not applicable
     $pipelineSuite or exit $exitStatus;
@@ -54,7 +54,7 @@ sub releaseMdiGitLock { # always called at the end of every launcher run
         defined $exitStatus and exit $exitStatus;
         return;
     }
-    my $lockFile = getMdiLockFile();
+    my $lockFile = getRudiLockFile();
     -e $lockFile and unlink $lockFile;
     defined $exitStatus and exit $exitStatus; # don't use die to avoid compile error from require of launcher
 }

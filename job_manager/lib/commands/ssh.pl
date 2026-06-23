@@ -71,7 +71,7 @@ sub getJobLogFileContents {
     my $jobID = $jobIDs[0];
 
     # get and check the job/task log file
-    my ($qType, $array, $inScript, $command, $instrsFile, $scriptFile, $jobName) = @{$targetJobIDs{$jobID}};
+    my ($qType, $array, $inScript, $command_, $instrsFile, $scriptFile, $jobName) = @{$targetJobIDs{$jobID}};
     !$taskID and $array and $array =~ m/,/ and $taskID = promptForTaskSelection($jobID, $array);
     my $logFiles;
     if($taskID){
@@ -79,9 +79,9 @@ sub getJobLogFileContents {
     } else {
         $logFiles = getLogFiles($qType, $jobName, $jobID, $array);
     }
-    @$logFiles == 1 or throwError($tooManyJobs, $command); 
+    @$logFiles == 1 or throwError($tooManyJobs, $command_); 
     my $logFile = @$logFiles[0];  
-    -e $logFile or throwError("job log file not found\n$error", $command);   
+    -e $logFile or throwError("job log file not found\n$error", $command_);   
 
     # extract the job manager status reports from the job/task log file
     my $yamls = loadYamlFromString( slurpFile($logFile) );
