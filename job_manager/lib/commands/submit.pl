@@ -374,7 +374,7 @@ sub submitJob{ # disperse the job as indicated by $qInUse
 }
 sub submitLocal { # run the script in shell if queue is suppressed
     my ($targetScript, $jobName, $job) = @_;
-    my $separatorLength = $options{'dry-run'} ? 0 : 100;
+    my $separatorLength = $options{'dry-run'} ? 0 : 80;
     $options{'dry-run'} or print "=" x $separatorLength, "\n";
     $options{'_suppress-echo_'} or print "$jobName\n"; 
     $options{'dry-run'} or print "~" x $separatorLength, "\n";

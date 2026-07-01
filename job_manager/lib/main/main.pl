@@ -9,7 +9,7 @@ use Cwd(qw(abs_path));
 use vars qw($jobManagerDir $jobManagerName %commands @options 
             %pipelineLevelCommands $parsedYamls);
 our ($command, @args) = @ARGV;
-our ($isContainer, $dataYmlFile, $pipelineOptions, $pipelineName);
+our ($isContainer, $dataYmlFile, @pipelineOptions, $pipelineOptions, $pipelineName);
 our %containerCommands = map { $_ => 1 } qw(
     inspect
     list
@@ -25,7 +25,7 @@ sub jobManagerMain {
     my $isAppCommand = $commands{$command}[2];
     @args or $isAppCommand or (reportOptionHelp($command) and exit);
 
-    my @pipelineOptions = setOptions();
+    @pipelineOptions = setOptions();
     checkRequiredOptions();    
     $isAppCommand and return executeCommand(); # shortcut to app execution
     my @dataYmlFiles; # our target file(s) that specific data jobs

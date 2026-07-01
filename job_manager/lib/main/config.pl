@@ -39,7 +39,9 @@ our %commands = (  # [executionSub, commandHelp, isAppCommand]
     clean       =>  [\&rudiClean,     "delete all unused conda environments from old pipeline verions", 1],
     unlock      =>  [\&rudiUnlock,    "remove all framework and suite repository locks, to reset after error", 1],    
     build       =>  [\&rudiBuild,     "build one container with all of a suite's pipelines and apps", 1],
-    serve       =>  [\&rudiServe,     "launch the web server to use interactive apps",  1],
+    serve       =>  [\&rudiServe,     "launch the Dioxus web server to use or develop interactive apps",  1],
+    dx          =>  [\&rudiDx,        "for developers, use a container to run a Dioxus `dx` command",  1],
+    cargo       =>  [\&rudiCargo,     "for developers, use a container to run a Rust `cargo` command",  1],
 ); 
 #------------------------------------------------------------------------
 # options
@@ -80,9 +82,12 @@ our %optionInfo = (# [shortOption, valueString, optionGroup, groupOrder, optionH
     'version'=>            ["V", "<str>", "build",   1, "the version of the suite to act on, e.g. v0.0.0 [latest]"],
     'sandbox'=>            ["S", undef,   "build",   2, "pass option '--sandbox' to singularity build"],
     'tool-suite'=>         ["U", "<str>", "serve",   0, "the tool suite to serve, as <git_owner>/<suite_name> [installed single-suite]"],
-    'data-dir'=>           ["D", "<str>", "serve",   1, "path to the desired data directory [RUDI_DIR/data]"],
+    'address' =>           ["A", "<int>", "serve",   1, "the IP address that the server will listen on [127.0.0.1]"],
     'port' =>              ["P", "<int>", "serve",   2, "the port that the server will listen on [3839]"],
-    'dioxus-container' =>  ["X", "<str>", "serve",   3, "for developers only, the Dioxus container image to use [rust-1.92.0-dx-0.7.9]"],
+    'data-dir'=>           ["D", "<str>", "serve",   3, "path to the desired data directory [RUDI_DIR/data]"],
+    'dioxus-version' =>    ["X", "<str>", "rust",    0, "for developers, the Dioxus container image to use [rust-1.92.0-dx-0.7.9]"],
+    'cargo-home' =>        ["C", "<str>", "rust",    1, "developer override of CARGO_HOME [\$CARGO_HOME or ~/.cargo]"],
+    'fast-tmp-dir' =>      ["p", "<str>", "rust",    2, "developer path on fast temporary drive used to run dx serve [not used]"],
     # 'runtime'=>            ["m", "<str>", "serve",   5, "execution environment: direct, conda, container, singularity, or auto [auto]"],
 );
 our %longOptions = map { ${$optionInfo{$_}}[0] => $_ } keys %optionInfo; # for converting short options to long; long options are used internally
@@ -120,7 +125,10 @@ our %commandOptions =  ( # 0=allowed, 1=required
     clean      =>  {},
     unlock     =>  {},
     build      =>  {'suite'=>1, 'container-type'=>0, 'version'=>0, 'sandbox' => 0},
-    serve      =>  {'tool-suite'=>0,'data-dir'=>0,'port'=>0,'dioxus-container'=>0}, # ,'runtime'=>0, 'container-version'=>0
+    serve      =>  {'tool-suite'=>0,'address'=>0,'port'=>0,'data-dir'=>0,
+                    'dioxus-version'=>0,'cargo-home'=>0,'fast-tmp-dir'=>0},
+    dx         =>  {'dioxus-version'=>0,'cargo-home'=>0,'fast-tmp-dir'=>0},
+    cargo      =>  {'dioxus-version'=>0,'cargo-home'=>0},
 ); 
 #------------------------------------------------------------------------
 # suppress the extra demarcating lines used in command execution outputs

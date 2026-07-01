@@ -6,10 +6,10 @@ use vars qw($jobManagerName %commands %commandOptions %optionInfo $isContainer %
 my $jmName = $ENV{JOB_MANAGER_NAME} ? $ENV{JOB_MANAGER_NAME} : $jobManagerName;
 my $commandTabLength = 12; 
 my $optionTabLength = 20;
-our $separatorLength = 100;
+our $separatorLength = 80;
 our $leftPad = (" ") x 2;
 our $errorHighlight = "!" x 80;
-our @optionGroups = qw(main submit status job rollback install alias build serve);  # ensure that similar options group together
+our @optionGroups = qw(main submit status job rollback install alias build serve rust);  # ensure that similar options group together
 my %useOptionGroupDelimiter = (submit=>1, extend=>1, resubmit=>1);  # break long options lists into separate groups
 
 #========================================================================
@@ -51,7 +51,7 @@ sub reportCommandsHelp { # help on the set of available commands, organized by t
     reportCommandChunk("status and result reporting", qw(status start script report));  
     reportCommandChunk("interacting with jobs",       qw(ssh top ls));           
     reportCommandChunk("pipeline management",         qw(delete rollback purge));  
-    reportCommandChunk("server management",           qw(initialize install alias add list clean unlock build server));  
+    reportCommandChunk("server management",           qw(initialize install alias add list clean unlock build serve dx cargo));  
 }
 sub reportOptionHelp { 
     my ($command) = @_;
